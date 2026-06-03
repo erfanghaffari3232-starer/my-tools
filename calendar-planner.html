@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تقویم و برنامه‌ریز</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            min-height: 100vh; display: flex; justify-content: center; align-items: center;
+            padding: 20px; color: white;
+        }
+        .app {
+            background: #1a1a1a; border-radius: 24px; padding: 1.5rem; width: 100%;
+            max-width: 650px; box-shadow: 0 20px 60px rgba(0,0,0,0.6); border: 2px solid #3498db;
+            display: flex; gap: 1.5rem; flex-wrap: wrap;
+        }
+        .calendar-side { flex: 1; min-width: 280px; }
+        .events-side { flex: 1; min-width: 250px; }
+        .month-header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;
+        }
+        .month-header button {
+            background: #2a2a2a; color: white; border: none; width: 35px; height: 35px;
+            border-radius: 50%; cursor: pointer; font-size: 1.2rem; transition: 0.3s;
+        }
+        .month-header button:hover { background: #3498db; }
+        .month-title { font-size: 1.2rem; font-weight: bold; color: #3498db; }
+        .weekdays {
+            display: grid; grid-template-columns: repeat(7, 1fr); text-align: center;
+            margin-bottom: 0.5rem; color: #888; font-size: 0.8rem;
+        }
+        .days-grid {
+            display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+        }
+        .day-cell {
+            aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+            border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: 0.2s;
+            background: #0d0d1a; position: relative;
+        }
+        .day-cell:hover { background: #2a2a2a; }
+        .day-cell.today { border: 2px solid #3498db; font-weight: bold; }
+        .day-cell.selected { background: #3498db; color: white; }
+        .day-cell.other-month { color: #444; }
+        .day-cell.has-event::after {
+            content: ''; position: absolute; bottom: 4px; width: 5px; height: 5px;
+            background: #e94560; border-radius: 50%;
+        }
+        .day-cell.today.has-event::after { bottom: 6px; }
+        .events-title { font-size: 1.1rem; color: #e94560; margin-bottom: 1rem; }
+        .event-form { display: flex; gap: 8px; margin-bottom: 1rem; }
+        .event-form input {
+            flex: 1; background: #0d0d1a; border: 2px solid #533483; padding: 10px;
+            border-radius: 8px; color: white; font-family: inherit; font-size: 0.9rem;
+        }
+        .event-form input:focus { outline: none; border-color: #e94560; }
+        .event-form button {
+            background: #e94560; color: white; border: none; padding: 10px 15px;
+            border-radius: 8px; cursor: pointer; font-weight: bold; font-family: inherit;
+        }
+        .event-form button:hover { background: #c73652; }
+        .event-list { list-style: none; max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+        .event-item {
+            background: #0d0d1a; border: 1px solid #333; border-radius: 8px; padding: 10px 12px;
+            display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem;
+        }
+        .event-item .delete-event {
+            background: none; border: none; color: #666; cursor: pointer; font-size: 1rem;
+        }
+        .event-item .delete-event:hover { color: #e94560; }
+        .empty-events { text-align: center; color: #555; padding: 1rem; }
+        .year-select { display: flex; gap: 5px; align-items: center; }
+        .year-select select {
+            background: #2a2a2a; color: white; border: 1px solid #444; padding: 6px 10px;
+            border-radius: 6px; font-family: inherit; cursor: pointer;
+        }
+        @media (max-width: 600px) { .app { flex-direction: column; } }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- بخش تقویم -->
+        <div class="calendar-side">
+            <div class="month-header">
+                <button onclick="prevMonth()">◀</button>
+                <div>
+                    <div class="month-title" id="monthTitle">فروردین ۱۴۰۴</div>
+                    <div class="year-select">
+                        <select id="yearSelect" onchange="changeYear()"></select>
+                    </div>
+                </div>
+                <button onclick="nextMonth()">▶</button>
+            </div>
+            <div class="weekdays">
+                <div>ش</div><div>ی</div><div>د</div><div>س</div><div>چ</div><div>پ</div><div>ج</div>
+            </div>
+            <div class="days-grid" id="daysGrid"></div>
+        </div>
+
+        <!-- بخش رویدادها -->
+        <div class="events-side">
+            <div class="events-title">📌 رویدادهای <span id="selectedDateTitle">امروز</span></div>
+            <div class="event-form">
+                <input type="text" id="eventInput" placeholder="رویداد جدید..." onkeypress="if(event.key==='Enter') addEvent()">
+                <button onclick="addEvent()">➕</button>
+            </div>
+            <ul class="event-list" id="eventList"></ul>
+        </div>
+    </div>
+
+    <script>
+        const persianMonths = [
+            'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
+            'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'
+        ];
+
+        let currentYear = 1404;
+        let currentMonth = 0; // 0 = فروردین
+        let selectedDay = null;
+        let events = JSON.parse(localStorage.getItem('calendarEvents') || '{}');
+
+        // تقویم ساده شمسی
+        function getPersianDaysInMonth(year, month) {
+            if (month <= 5) return 31;
+            if (month <= 10) return 30;
+            return 29; // اسفند (ساده)
+        }
+
+        function getToday() {
+            const now = new Date();
+            const gYear = now.getFullYear();
+            const gMonth = now.getMonth() + 1;
+            const gDay = now.getDate();
+            // تبدیل تقریبی میلادی به شمسی
+            const jd = Math.floor((gYear + 1) * 365.25) + gMonth * 30 + gDay - 670000;
+            let y = Math.floor(jd / 365.25);
+            let remaining = jd - Math.floor(y * 365.25);
+            let m = Math.floor(remaining / 30);
+            let d = remaining - m * 30;
+            if (d < 1) d = 1;
+            if (m > 11) m = 11;
+            if (d > 30) d = 30;
+            return { year: y + 1, month: m, day: d };
+        }
+
+        function init() {
+            const today = getToday();
+            currentYear = today.year;
+            currentMonth = today.month;
+            selectedDay = today.day;
+            
+            const yearSelect = document.getElementById('yearSelect');
+            yearSelect.innerHTML = '';
+            for (let y = 1400; y <= 1410; y++) {
+                yearSelect.innerHTML += `<option value="${y}" ${y === currentYear ? 'selected' : ''}>${y}</option>`;
+            }
+            
+            renderCalendar();
+        }
+
+        function prevMonth() {
+            currentMonth--;
+            if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+            updateYearSelect();
+            renderCalendar();
+        }
+
+        function nextMonth() {
+            currentMonth++;
+            if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+            updateYearSelect();
+            renderCalendar();
+        }
+
+        function changeYear() {
+            currentYear = parseInt(document.getElementById('yearSelect').value);
+            renderCalendar();
+        }
+
+        function updateYearSelect() {
+            document.getElementById('yearSelect').value = currentYear;
+        }
+
+        function renderCalendar() {
+            document.getElementById('monthTitle').textContent = `${persianMonths[currentMonth]} ${currentYear}`;
+            
+            const daysGrid = document.getElementById('daysGrid');
+            const daysInMonth = getPersianDaysInMonth(currentYear, currentMonth);
+            const today = getToday();
+            
+            daysGrid.innerHTML = '';
+            
+            for (let d = 1; d <= daysInMonth; d++) {
+                const cell = document.createElement('div');
+                cell.className = 'day-cell';
+                cell.textContent = d;
+                
+                const dateKey = `${currentYear}-${currentMonth}-${d}`;
+                if (events[dateKey] && events[dateKey].length > 0) {
+                    cell.classList.add('has-event');
+                }
+                if (currentYear === today.year && currentMonth === today.month && d === today.day) {
+                    cell.classList.add('today');
+                }
+                if (d === selectedDay) {
+                    cell.classList.add('selected');
+                }
+                
+                cell.onclick = () => selectDay(d);
+                daysGrid.appendChild(cell);
+            }
+            
+            updateYearSelect();
+            if (selectedDay) selectDay(selectedDay, true);
+        }
+
+        function selectDay(day, skipRender = false) {
+            selectedDay = day;
+            if (!skipRender) renderCalendar();
+            
+            document.getElementById('selectedDateTitle').textContent = `${day} ${persianMonths[currentMonth]} ${currentYear}`;
+            renderEvents();
+        }
+
+        function getDateKey() {
+            return `${currentYear}-${currentMonth}-${selectedDay}`;
+        }
+
+        function addEvent() {
+            const input = document.getElementById('eventInput');
+            const text = input.value.trim();
+            if (!text || !selectedDay) return;
+            
+            const key = getDateKey();
+            if (!events[key]) events[key] = [];
+            events[key].push({ id: Date.now(), text });
+            
+            input.value = '';
+            saveAndRender();
+        }
+
+        function deleteEvent(eventId) {
+            const key = getDateKey();
+            if (!events[key]) return;
+            events[key] = events[key].filter(e => e.id !== eventId);
+            if (events[key].length === 0) delete events[key];
+            saveAndRender();
+        }
+
+        function renderEvents() {
+            const list = document.getElementById('eventList');
+            const key = getDateKey();
+            const dayEvents = events[key] || [];
+            
+            if (dayEvents.length === 0) {
+                list.innerHTML = '<div class="empty-events">بدون رویداد</div>';
+            } else {
+                list.innerHTML = dayEvents.map(e => `
+                    <li class="event-item">
+                        <span>📌 ${e.text}</span>
+                        <button class="delete-event" onclick="deleteEvent(${e.id})">✕</button>
+                    </li>
+                `).join('');
+            }
+        }
+
+        function saveAndRender() {
+            localStorage.setItem('calendarEvents', JSON.stringify(events));
+            renderCalendar();
+            renderEvents();
+        }
+
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جعبه ابزار ۲۰ پروژه</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #0a0a0f, #1a1a2e, #16213e);
+            min-height: 100vh; padding: 25px 20px 40px; color: white;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+
+        /* هدر */
+        .header {
+            text-align: center; margin-bottom: 2rem;
+            background: rgba(233,69,96,0.05); border: 1px solid rgba(233,69,96,0.2);
+            border-radius: 24px; padding: 2rem 1.5rem;
+        }
+        .header .icon { font-size: 3.5rem; display: block; animation: float 2.5s ease-in-out infinite; }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+        .header h1 {
+            font-size: 2.4rem; font-weight: 900; margin: 0.5rem 0;
+            background: linear-gradient(135deg, #e94560, #f39c12, #4ecca3);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .header p { color: #a2a8d3; font-size: 1rem; }
+        .header .badge {
+            display: inline-block; background: #e94560; color: white; padding: 4px 14px;
+            border-radius: 20px; font-size: 0.85rem; font-weight: bold; margin-top: 0.5rem;
+        }
+
+        /* آمار */
+        .stats-row {
+            display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem;
+        }
+        .stat-card {
+            background: #1a1a2e; border: 1px solid #2a2a3e; border-radius: 14px;
+            padding: 14px 22px; text-align: center; min-width: 90px;
+        }
+        .stat-card .num { font-size: 1.8rem; font-weight: bold; color: #4ecca3; }
+        .stat-card .lbl { font-size: 0.75rem; color: #777; margin-top: 2px; }
+
+        /* جستجو */
+        .search-wrap {
+            display: flex; gap: 10px; margin-bottom: 1.8rem; justify-content: center;
+        }
+        .search-wrap input {
+            background: #1a1a2e; border: 2px solid #2a2a3e; padding: 12px 20px;
+            border-radius: 30px; color: white; font-size: 1rem; width: 100%; max-width: 450px;
+            font-family: inherit; text-align: center; transition: 0.3s;
+        }
+        .search-wrap input:focus { outline: none; border-color: #e94560; }
+        .search-wrap input::placeholder { color: #555; }
+        .search-wrap button {
+            background: #e94560; color: white; border: none; padding: 12px 18px;
+            border-radius: 30px; cursor: pointer; font-family: inherit; font-weight: bold; font-size: 0.9rem;
+            transition: 0.3s;
+        }
+        .search-wrap button:hover { background: #c73652; }
+
+        /* تب‌ها */
+        .tab-row {
+            display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem;
+        }
+        .tab-btn {
+            background: #1a1a2e; color: #777; border: 1px solid #2a2a3e; padding: 8px 16px;
+            border-radius: 20px; cursor: pointer; font-family: inherit; font-size: 0.8rem; transition: 0.3s;
+        }
+        .tab-btn.active { background: #e94560; color: white; border-color: #e94560; }
+        .tab-btn:hover:not(.active) { color: white; border-color: #555; }
+
+        /* گرید */
+        .grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+            gap: 14px;
+        }
+        .card {
+            background: #1a1a2e; border: 2px solid #2a2a3e; border-radius: 18px;
+            padding: 1.3rem; cursor: pointer; transition: all 0.3s ease; position: relative;
+            display: flex; align-items: center; gap: 14px; text-decoration: none; color: white;
+        }
+        .card:hover {
+            border-color: #e94560; transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(233,69,96,0.25); background: #1f1f35;
+        }
+        .card:active { transform: scale(0.97); }
+        .card-num {
+            position: absolute; top: 10px; left: 10px; background: #e94560; color: white;
+            width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-size: 0.75rem; font-weight: bold;
+        }
+        .card-icon { font-size: 2.5rem; flex-shrink: 0; width: 50px; text-align: center; }
+        .card-info { flex: 1; min-width: 0; }
+        .card-info h3 { font-size: 1rem; margin-bottom: 3px; color: #eee; }
+        .card-info .en { font-size: 0.7rem; color: #666; margin-bottom: 4px; }
+        .card-info p { font-size: 0.78rem; color: #888; line-height: 1.4; }
+        .card-tag {
+            font-size: 0.65rem; padding: 3px 10px; border-radius: 12px;
+            background: rgba(233,69,96,0.15); color: #e94560; display: inline-block; margin-top: 4px;
+        }
+
+        /* رنگ‌های متنوع */
+        .card:nth-child(5n+1) { border-left: 3px solid #e94560; }
+        .card:nth-child(5n+2) { border-left: 3px solid #f39c12; }
+        .card:nth-child(5n+3) { border-left: 3px solid #3498db; }
+        .card:nth-child(5n+4) { border-left: 3px solid #4ecca3; }
+        .card:nth-child(5n+5) { border-left: 3px solid #9b59b6; }
+
+        .footer {
+            text-align: center; margin-top: 2.5rem; color: #444; font-size: 0.8rem;
+            padding: 1rem; border-top: 1px solid #1a1a2e;
+        }
+        .footer span { color: #e94560; }
+
+        .not-found { text-align: center; color: #555; padding: 3rem; grid-column: 1/-1; }
+
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.8rem; }
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- هدر -->
+        <div class="header">
+            <span class="icon">🧰</span>
+            <h1>جعبه ابزار ۲۰ پروژه</h1>
+            <p>مجموعه کامل ابزارهای HTML, CSS و JavaScript</p>
+            <span class="badge">🎉 ۲۰ پروژه آماده</span>
+        </div>
+
+        <!-- آمار -->
+        <div class="stats-row">
+            <div class="stat-card"><div class="num">۲۰</div><div class="lbl">پروژه</div></div>
+            <div class="stat-card"><div class="num">HTML</div><div class="lbl">+ CSS + JS</div></div>
+            <div class="stat-card"><div class="num">آفلاین</div><div class="lbl">بدون نیاز به اینترنت</div></div>
+            <div class="stat-card"><div class="num">🇮🇷</div><div class="lbl">فارسی</div></div>
+        </div>
+
+        <!-- جستجو -->
+        <div class="search-wrap">
+            <input type="text" id="searchInput" placeholder="🔍 جستجوی پروژه... (نام فارسی یا انگلیسی)" oninput="filterTools()">
+            <button onclick="document.getElementById('searchInput').value='';filterTools();">✕ پاک کردن</button>
+        </div>
+
+        <!-- تب‌های دسته‌بندی -->
+        <div class="tab-row" id="tabRow">
+            <button class="tab-btn active" data-cat="all">همه</button>
+            <button class="tab-btn" data-cat="media">🎬 رسانه</button>
+            <button class="tab-btn" data-cat="tools">🔧 ابزار</button>
+            <button class="tab-btn" data-cat="games">🎮 بازی</button>
+            <button class="tab-btn" data-cat="office">📊 اداری</button>
+            <button class="tab-btn" data-cat="utility">⚡ کاربردی</button>
+        </div>
+
+        <!-- گرید -->
+        <div class="grid" id="toolsGrid"></div>
+
+        <!-- فوتر -->
+        <div class="footer">
+            ساخته شده با <span>❤️</span> | برای استفاده آفلاین | تمام فایل‌ها در یک پوشه
+        </div>
+    </div>
+
+    <script>
+        const tools = [
+            // رسانه
+            { id:1, name:'ویرایشگر عکس', en:'Photo Editor', desc:'برش، فیلتر، چرخش، تنظیم روشنایی', icon:'🖼️', file:'photo-editor.html', cat:'media' },
+            { id:2, name:'ضبط کننده صدا', en:'Voice Recorder', desc:'ضبط با میکروفن، پخش و دانلود', icon:'🎙️', file:'voice-recorder.html', cat:'media' },
+            { id:3, name:'دانلودر ویدئو', en:'Video Downloader', desc:'مدیریت و دانلود ویدئو از لینک', icon:'📥', file:'video-downloader.html', cat:'media' },
+            { id:4, name:'پلیر موزیک', en:'Music Player', desc:'پلی‌لیست، پخش تصادفی، تکرار', icon:'🎵', file:'music-player.html', cat:'media' },
+            { id:19, name:'گالری عکس', en:'Image Gallery', desc:'آپلود، اسلایدر، اسلایدشو', icon:'🖼️', file:'image-gallery.html', cat:'media' },
+            // ابزار
+            { id:5, name:'ماشین حساب مهندسی', en:'Engineering Calculator', desc:'عملیات پایه، مثلثات، لگاریتم', icon:'🔢', file:'engineering-calculator.html', cat:'tools' },
+            { id:7, name:'تایمر و کرونومتر', en:'Timer & Stopwatch', desc:'شمارش معکوس، زمان‌گیر، آلارم', icon:'⏱️', file:'timer-stopwatch.html', cat:'tools' },
+            { id:8, name:'تولیدکننده QR Code', en:'QR Code Generator', desc:'تبدیل متن به QR با تنظیمات', icon:'📱', file:'qr-generator.html', cat:'tools' },
+            { id:9, name:'بوم نقاشی', en:'Drawing Canvas', desc:'قلم، پاک‌کن، اشکال هندسی', icon:'🎨', file:'drawing-canvas.html', cat:'tools' },
+            { id:13, name:'مبدل واحدها', en:'Unit Converter', desc:'طول، وزن، دما، حجم، سرعت، داده', icon:'🔄', file:'unit-converter.html', cat:'tools' },
+            { id:16, name:'ویرایشگر کد آنلاین', en:'Online Code Editor', desc:'HTML, CSS, JS زنده', icon:'💻', file:'code-editor.html', cat:'tools' },
+            // بازی
+            { id:10, name:'تست تایپ فارسی', en:'Persian Typing Test', desc:'محاسبه سرعت و دقت تایپ', icon:'⌨️', file:'typing-test.html', cat:'games' },
+            { id:14, name:'بازی حدس کلمه', en:'Wordle Game', desc:'حدس کلمه ۵ حرفی در ۶ تلاش', icon:'🎮', file:'wordle-game.html', cat:'games' },
+            { id:17, name:'بازی دوز', en:'Tic-Tac-Toe', desc:'دو نفره و با کامپیوتر', icon:'🎲', file:'tic-tac-toe.html', cat:'games' },
+            { id:20, name:'چت محلی', en:'Local Chat', desc:'چت دو کاربره با پاسخ خودکار', icon:'💬', file:'local-chat.html', cat:'games' },
+            // اداری
+            { id:6, name:'یادداشت‌بردار', en:'Notepad', desc:'ذخیره در مرورگر، جستجو، دانلود', icon:'📝', file:'notepad.html', cat:'office' },
+            { id:11, name:'مدیریت تسک', en:'To-Do List', desc:'افزودن، حذف، دسته‌بندی، فیلتر', icon:'✅', file:'todo-list.html', cat:'office' },
+            { id:15, name:'تقویم و برنامه‌ریز', en:'Calendar & Planner', desc:'تقویم شمسی، رویدادها', icon:'📅', file:'calendar-planner.html', cat:'office' },
+            { id:18, name:'مدیریت هزینه', en:'Budget Tracker', desc:'دخل و خرج، نمودار، ذخیره', icon:'💰', file:'budget-tracker.html', cat:'office' },
+            // کاربردی
+            { id:12, name:'آب و هوا', en:'Weather App', desc:'دمای شهرها با API رایگان', icon:'🌤️', file:'weather-app.html', cat:'utility' },
+        ];
+
+        let currentCat = 'all';
+        const grid = document.getElementById('toolsGrid');
+
+        function renderTools(filtered = null) {
+            const list = filtered || tools;
+            
+            if (list.length === 0) {
+                grid.innerHTML = '<div class="not-found">🔍 پروژه‌ای یافت نشد!<br><small>عبارت دیگری جستجو کنید</small></div>';
+                return;
+            }
+
+            grid.innerHTML = list.map(t => `
+                <div class="card" onclick="openTool('${t.file}')" title="کلیک کنید تا ${t.name} باز شود">
+                    <div class="card-num">${t.id}</div>
+                    <div class="card-icon">${t.icon}</div>
+                    <div class="card-info">
+                        <h3>${t.name}</h3>
+                        <div class="en">${t.en}</div>
+                        <p>${t.desc}</p>
+                        <span class="card-tag">${getCatName(t.cat)}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getCatName(cat) {
+            const names = { media:'🎬 رسانه', tools:'🔧 ابزار', games:'🎮 بازی', office:'📊 اداری', utility:'⚡ کاربردی' };
+            return names[cat] || cat;
+        }
+
+        function filterTools() {
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+            
+            let filtered = tools;
+            
+            // فیلتر دسته‌بندی
+            if (currentCat !== 'all') {
+                filtered = filtered.filter(t => t.cat === currentCat);
+            }
+            
+            // فیلتر جستجو
+            if (query !== '') {
+                filtered = filtered.filter(t => 
+                    t.name.toLowerCase().includes(query) ||
+                    t.en.toLowerCase().includes(query) ||
+                    t.desc.toLowerCase().includes(query) ||
+                    getCatName(t.cat).includes(query)
+                );
+            }
+            
+            renderTools(filtered);
+        }
+
+        function openTool(fileName) {
+            window.open(fileName, '_blank', 'noopener,noreferrer');
+        }
+
+        // تب‌ها
+        document.getElementById('tabRow').addEventListener('click', function(e) {
+            if (e.target.classList.contains('tab-btn')) {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                currentCat = e.target.dataset.cat;
+                filterTools();
+            }
+        });
+
+        // کیبورد
+        document.addEventListener('keydown', function(e) {
+            const num = parseInt(e.key);
+            if (num >= 1 && num <= 20) {
+                const tool = tools.find(t => t.id === num);
+                if (tool) openTool(tool.file);
+            }
+            if (e.key === 'Escape') {
+                document.getElementById('searchInput').value = '';
+                filterTools();
+                document.getElementById('searchInput').focus();
+            }
+            if (e.ctrlKey && e.key === 'k') {
+                e.preventDefault();
+                document.getElementById('searchInput').focus();
+            }
+        });
+
+        // راه‌اندازی
+        renderTools();
+    </script>
+</body>
+</html>

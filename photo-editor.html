@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ویرایشگر عکس آنلاین</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            min-height: 100vh;
+            padding: 20px;
+            color: white;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #1a1a1a;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            border: 2px solid #333;
+        }
+        .header {
+            background: #0d0d1a;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #333;
+        }
+        .header h1 {
+            color: #e94560;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 10px;
+        }
+        button, .btn {
+            background: #2a2a2a;
+            color: white;
+            border: 1px solid #444;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+        button:hover, .btn:hover {
+            background: #e94560;
+            border-color: #e94560;
+            box-shadow: 0 0 15px rgba(233,69,96,0.3);
+        }
+        button.active {
+            background: #e94560;
+            border-color: #e94560;
+        }
+        .main-area {
+            display: flex;
+            flex-wrap: wrap;
+            min-height: 400px;
+        }
+        .canvas-container {
+            flex: 1;
+            min-width: 300px;
+            min-height: 350px;
+            background: #0a0a0a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            border-right: 1px solid #333;
+        }
+        canvas {
+            max-width: 100%;
+            max-height: 500px;
+            object-fit: contain;
+        }
+        .controls-panel {
+            width: 280px;
+            padding: 20px;
+            background: #111;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+            max-height: 500px;
+        }
+        .control-group {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #333;
+        }
+        .control-group h3 {
+            color: #e94560;
+            margin-bottom: 10px;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        .slider-group label {
+            font-size: 0.85rem;
+            color: #ccc;
+            display: flex;
+            justify-content: space-between;
+        }
+        input[type="range"] {
+            width: 100%;
+            accent-color: #e94560;
+            cursor: pointer;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .filter-btns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .filter-btn {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            background: #2a2a2a;
+        }
+        .filter-btn.active {
+            background: #533483;
+            border-color: #e94560;
+        }
+        select {
+            width: 100%;
+            background: #2a2a2a;
+            color: white;
+            border: 1px solid #444;
+            padding: 8px;
+            border-radius: 6px;
+            font-family: inherit;
+        }
+        .crop-btn {
+            background: #0f3460;
+            margin-top: 10px;
+        }
+        .download-btn {
+            background: #4ecca3;
+            color: #1a1a1a;
+            font-weight: bold;
+            border-color: #4ecca3;
+        }
+        .download-btn:hover {
+            background: #3baa8a;
+            border-color: #3baa8a;
+        }
+        .reset-btn {
+            background: #555;
+        }
+        .empty-state {
+            color: #666;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+        @media (max-width: 700px) {
+            .main-area {
+                flex-direction: column;
+            }
+            .controls-panel {
+                width: 100%;
+                max-height: none;
+            }
+            .canvas-container {
+                border-right: none;
+                border-bottom: 1px solid #333;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🖼️ ویرایشگر عکس آنلاین</h1>
+            <div class="toolbar">
+                <label class="btn" for="imageInput">📂 باز کردن عکس</label>
+                <input type="file" id="imageInput" accept="image/*">
+                <button id="resetBtn" class="reset-btn">🔄 بازنشانی</button>
+                <button id="downloadBtn" class="download-btn">💾 دانلود عکس</button>
+            </div>
+        </div>
+
+        <div class="main-area">
+            <div class="canvas-container" id="canvasContainer">
+                <canvas id="imageCanvas"></canvas>
+                <div class="empty-state" id="emptyState">📷 لطفاً یک عکس انتخاب کنید</div>
+            </div>
+
+            <div class="controls-panel" id="controlsPanel" style="display:none;">
+                <!-- فیلترها -->
+                <div class="control-group">
+                    <h3>🎨 فیلترها</h3>
+                    <div class="filter-btns" id="filterBtns">
+                        <button class="filter-btn active" data-filter="none">عادی</button>
+                        <button class="filter-btn" data-filter="grayscale">سیاه و سفید</button>
+                        <button class="filter-btn" data-filter="sepia">سپیا</button>
+                        <button class="filter-btn" data-filter="invert">نگاتیو</button>
+                        <button class="filter-btn" data-filter="blur">محو</button>
+                    </div>
+                </div>
+
+                <!-- تنظیمات -->
+                <div class="control-group">
+                    <h3>⚙️ تنظیمات تصویر</h3>
+                    <div class="slider-group">
+                        <label>روشنایی <span id="brightnessVal">100%</span></label>
+                        <input type="range" id="brightness" min="0" max="200" value="100">
+                    </div>
+                    <div class="slider-group">
+                        <label>کنتراست <span id="contrastVal">100%</span></label>
+                        <input type="range" id="contrast" min="0" max="200" value="100">
+                    </div>
+                    <div class="slider-group">
+                        <label>اشباع <span id="saturationVal">100%</span></label>
+                        <input type="range" id="saturation" min="0" max="200" value="100">
+                    </div>
+                </div>
+
+                <!-- چرخش و برعکس -->
+                <div class="control-group">
+                    <h3>🔄 چرخش و قرینه</h3>
+                    <button onclick="rotateImage(-90)">↺ چرخش چپ</button>
+                    <button onclick="rotateImage(90)" style="margin-right:5px;">↻ چرخش راست</button>
+                    <button onclick="flipImage('horizontal')" style="margin-top:5px;">↔️ قرینه افقی</button>
+                    <button onclick="flipImage('vertical')">↕️ قرینه عمودی</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('imageCanvas');
+        const ctx = canvas.getContext('2d');
+        const canvasContainer = document.getElementById('canvasContainer');
+        const imageInput = document.getElementById('imageInput');
+        const emptyState = document.getElementById('emptyState');
+        const controlsPanel = document.getElementById('controlsPanel');
+        const resetBtn = document.getElementById('resetBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        let originalImage = null;
+        let currentImage = null;
+        let currentFilter = 'none';
+        let rotation = 0;
+        let flipH = false;
+        let flipV = false;
+
+        // بارگذاری عکس
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    originalImage = img;
+                    currentImage = img;
+                    rotation = 0;
+                    flipH = false;
+                    flipV = false;
+                    resetSliders();
+                    applyAllEffects();
+                    emptyState.style.display = 'none';
+                    canvas.style.display = 'block';
+                    controlsPanel.style.display = 'flex';
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // بازنشانی
+        resetBtn.addEventListener('click', function() {
+            if (originalImage) {
+                currentImage = originalImage;
+                rotation = 0;
+                flipH = false;
+                flipV = false;
+                currentFilter = 'none';
+                resetSliders();
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                document.querySelector('[data-filter="none"]').classList.add('active');
+                applyAllEffects();
+            }
+        });
+
+        // فیلترها
+        document.getElementById('filterBtns').addEventListener('click', function(e) {
+            if (e.target.classList.contains('filter-btn')) {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                currentFilter = e.target.dataset.filter;
+                applyAllEffects();
+            }
+        });
+
+        // اسلایدرها
+        const sliders = ['brightness', 'contrast', 'saturation'];
+        sliders.forEach(id => {
+            document.getElementById(id).addEventListener('input', function() {
+                document.getElementById(id + 'Val').textContent = this.value + '%';
+                applyAllEffects();
+            });
+        });
+
+        function resetSliders() {
+            sliders.forEach(id => {
+                document.getElementById(id).value = 100;
+                document.getElementById(id + 'Val').textContent = '100%';
+            });
+        }
+
+        // چرخش
+        function rotateImage(deg) {
+            rotation = (rotation + deg) % 360;
+            applyAllEffects();
+        }
+
+        // قرینه
+        function flipImage(direction) {
+            if (direction === 'horizontal') flipH = !flipH;
+            if (direction === 'vertical') flipV = !flipV;
+            applyAllEffects();
+        }
+
+        // اعمال همه افکت‌ها
+        function applyAllEffects() {
+            if (!currentImage) return;
+
+            let w = currentImage.width;
+            let h = currentImage.height;
+
+            // محاسبه ابعاد بعد از چرخش
+            if (Math.abs(rotation) % 180 === 90) {
+                [w, h] = [h, w];
+            }
+
+            canvas.width = w;
+            canvas.height = h;
+
+            ctx.save();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // انتقال به مرکز
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            
+            // چرخش
+            ctx.rotate((rotation * Math.PI) / 180);
+            
+            // قرینه
+            ctx.scale(flipH ? -1 : 1, flipV ? -1 : 1);
+
+            // اعمال فیلترهای CSS
+            const brightness = document.getElementById('brightness').value / 100;
+            const contrast = document.getElementById('contrast').value / 100;
+            const saturation = document.getElementById('saturation').value / 100;
+
+            let filterString = '';
+            filterString += `brightness(${brightness}) `;
+            filterString += `contrast(${contrast}) `;
+            filterString += `saturate(${saturation}) `;
+
+            switch(currentFilter) {
+                case 'grayscale': filterString += 'grayscale(100%) '; break;
+                case 'sepia': filterString += 'sepia(100%) '; break;
+                case 'invert': filterString += 'invert(100%) '; break;
+                case 'blur': filterString += 'blur(3px) '; break;
+            }
+
+            ctx.filter = filterString.trim();
+            ctx.drawImage(currentImage, -currentImage.width / 2, -currentImage.height / 2);
+            
+            ctx.filter = 'none';
+            ctx.restore();
+        }
+
+        // دانلود
+        downloadBtn.addEventListener('click', function() {
+            if (!currentImage) {
+                alert('لطفاً اول یک عکس باز کنید!');
+                return;
+            }
+            const link = document.createElement('a');
+            link.download = 'edited-image.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+
+        // تنظیمات اولیه
+        canvas.style.display = 'none';
+    </script>
+</body>
+</html>

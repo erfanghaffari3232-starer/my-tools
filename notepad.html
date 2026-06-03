@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>یادداشت‌بردار</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: white;
+        }
+        .app {
+            background: #1a1a1a;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 750px;
+            height: 85vh;
+            max-height: 700px;
+            display: flex;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            border: 2px solid #e94560;
+        }
+        /* سایدبار */
+        .sidebar {
+            width: 260px;
+            background: #111;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border-left: 1px solid #333;
+            overflow-y: auto;
+        }
+        .sidebar h2 {
+            color: #e94560;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+        .new-note-btn {
+            background: #e94560;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: inherit;
+        }
+        .new-note-btn:hover {
+            background: #c73652;
+            box-shadow: 0 0 15px rgba(233,69,96,0.4);
+        }
+        .search-box {
+            background: #0d0d1a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 10px;
+            color: white;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+        .search-box:focus {
+            outline: none;
+            border-color: #e94560;
+        }
+        .notes-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .note-item {
+            background: #1a1a1a;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid transparent;
+            position: relative;
+        }
+        .note-item:hover {
+            background: #2a2a2a;
+        }
+        .note-item.active {
+            border-color: #e94560;
+            background: #1a1a2e;
+        }
+        .note-item .note-title {
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .note-item .note-preview {
+            font-size: 0.75rem;
+            color: #888;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .note-item .note-date {
+            font-size: 0.7rem;
+            color: #666;
+            margin-top: 4px;
+            direction: ltr;
+            text-align: left;
+        }
+        .note-item .delete-btn {
+            position: absolute;
+            left: 8px;
+            top: 8px;
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: 0.2s;
+            opacity: 0;
+        }
+        .note-item:hover .delete-btn {
+            opacity: 1;
+        }
+        .note-item .delete-btn:hover {
+            color: #e94560;
+            background: rgba(233,69,96,0.2);
+        }
+        .empty-notes {
+            text-align: center;
+            color: #555;
+            margin-top: 2rem;
+            font-size: 0.9rem;
+        }
+        /* بخش اصلی */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+        }
+        .note-editor {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .note-title-input {
+            background: #0d0d1a;
+            border: 2px solid #533483;
+            border-radius: 10px;
+            padding: 12px 15px;
+            color: white;
+            font-size: 1.3rem;
+            font-weight: bold;
+            font-family: inherit;
+            transition: 0.3s;
+        }
+        .note-title-input:focus {
+            outline: none;
+            border-color: #e94560;
+        }
+        .note-content {
+            flex: 1;
+            background: #0d0d1a;
+            border: 2px solid #533483;
+            border-radius: 10px;
+            padding: 15px;
+            color: white;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: none;
+            line-height: 1.8;
+            transition: 0.3s;
+        }
+        .note-content:focus {
+            outline: none;
+            border-color: #e94560;
+        }
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        button {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: inherit;
+            font-size: 0.85rem;
+            transition: 0.3s;
+        }
+        .save-btn {
+            background: #4ecca3;
+            color: #1a1a1a;
+        }
+        .save-btn:hover {
+            background: #3baa8a;
+        }
+        .download-btn {
+            background: #0f3460;
+            color: white;
+        }
+        .download-btn:hover {
+            background: #3498db;
+        }
+        .word-count {
+            color: #888;
+            font-size: 0.8rem;
+            margin-left: auto;
+            align-self: center;
+        }
+        .empty-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #555;
+        }
+        .empty-state span {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+        }
+        @media (max-width: 600px) {
+            .app {
+                flex-direction: column;
+                max-height: none;
+                height: auto;
+                min-height: 90vh;
+            }
+            .sidebar {
+                width: 100%;
+                max-height: 200px;
+                border-left: none;
+                border-bottom: 1px solid #333;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- سایدبار -->
+        <div class="sidebar">
+            <h2>📝 یادداشت‌ها</h2>
+            <button class="new-note-btn" onclick="createNewNote()">➕ یادداشت جدید</button>
+            <input type="text" class="search-box" placeholder="🔍 جستجو..." oninput="filterNotes(this.value)">
+            <div class="notes-list" id="notesList">
+                <div class="empty-notes">هنوز یادداشتی ندارید</div>
+            </div>
+        </div>
+
+        <!-- بخش اصلی -->
+        <div class="main" id="mainArea">
+            <div class="empty-state" id="emptyState">
+                <span>📝</span>
+                <p>یک یادداشت انتخاب کنید یا جدید بسازید</p>
+            </div>
+            <div class="note-editor" id="noteEditor" style="display:none;">
+                <input type="text" class="note-title-input" id="noteTitle" placeholder="عنوان یادداشت..." oninput="autoSave()">
+                <textarea class="note-content" id="noteContent" placeholder="متن یادداشت خود را بنویسید..." oninput="autoSave()"></textarea>
+                <div class="toolbar">
+                    <span class="word-count" id="wordCount">۰ کلمه</span>
+                    <button class="save-btn" onclick="saveNote()">💾 ذخیره</button>
+                    <button class="download-btn" onclick="downloadNote()">📥 دانلود</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let notes = JSON.parse(localStorage.getItem('myNotes') || '[]');
+        let currentNoteId = null;
+        let autoSaveTimeout = null;
+
+        const notesList = document.getElementById('notesList');
+        const emptyState = document.getElementById('emptyState');
+        const noteEditor = document.getElementById('noteEditor');
+        const noteTitle = document.getElementById('noteTitle');
+        const noteContent = document.getElementById('noteContent');
+        const wordCount = document.getElementById('wordCount');
+
+        // ساخت ID یکتا
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        // ایجاد یادداشت جدید
+        function createNewNote() {
+            const note = {
+                id: generateId(),
+                title: '',
+                content: '',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            notes.unshift(note);
+            saveToStorage();
+            selectNote(note.id);
+            renderNotesList();
+        }
+
+        // انتخاب یادداشت
+        function selectNote(id) {
+            currentNoteId = id;
+            const note = notes.find(n => n.id === id);
+            if (!note) return;
+
+            noteTitle.value = note.title;
+            noteContent.value = note.content;
+            
+            emptyState.style.display = 'none';
+            noteEditor.style.display = 'flex';
+            
+            updateWordCount();
+            renderNotesList();
+        }
+
+        // ذخیره خودکار
+        function autoSave() {
+            clearTimeout(autoSaveTimeout);
+            autoSaveTimeout = setTimeout(() => {
+                saveNote(true);
+            }, 500);
+            updateWordCount();
+        }
+
+        // ذخیره یادداشت
+        function saveNote(silent = false) {
+            if (!currentNoteId) return;
+
+            const note = notes.find(n => n.id === currentNoteId);
+            if (!note) return;
+
+            note.title = noteTitle.value;
+            note.content = noteContent.value;
+            note.updatedAt = new Date().toISOString();
+
+            saveToStorage();
+            renderNotesList();
+
+            if (!silent) {
+                showSaveIndicator();
+            }
+        }
+
+        function showSaveIndicator() {
+            const saveBtn = document.querySelector('.save-btn');
+            const original = saveBtn.textContent;
+            saveBtn.textContent = '✅ ذخیره شد';
+            saveBtn.style.background = '#2ecc71';
+            setTimeout(() => {
+                saveBtn.textContent = original;
+                saveBtn.style.background = '#4ecca3';
+            }, 1500);
+        }
+
+        // حذف یادداشت
+        function deleteNote(id, event) {
+            event.stopPropagation();
+            
+            if (!confirm('آیا از حذف این یادداشت مطمئن هستید؟')) return;
+            
+            notes = notes.filter(n => n.id !== id);
+            
+            if (currentNoteId === id) {
+                currentNoteId = null;
+                noteTitle.value = '';
+                noteContent.value = '';
+                emptyState.style.display = 'flex';
+                noteEditor.style.display = 'none';
+            }
+            
+            saveToStorage();
+            renderNotesList();
+        }
+
+        // دانلود یادداشت
+        function downloadNote() {
+            if (!currentNoteId) return;
+            
+            const note = notes.find(n => n.id === currentNoteId);
+            if (!note) return;
+
+            const text = `${note.title}\n${'─'.repeat(40)}\n${note.content}\n\n${new Date(note.updatedAt).toLocaleString('fa-IR')}`;
+            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = (note.title || 'یادداشت') + '.txt';
+            a.click();
+            
+            URL.revokeObjectURL(url);
+        }
+
+        // جستجو
+        function filterNotes(query) {
+            const filtered = query.trim() === '' 
+                ? notes 
+                : notes.filter(n => 
+                    n.title.includes(query) || 
+                    n.content.includes(query)
+                );
+            renderNotesList(filtered);
+        }
+
+        // نمایش لیست
+        function renderNotesList(filteredNotes = null) {
+            const list = filteredNotes || notes;
+            
+            if (list.length === 0) {
+                notesList.innerHTML = '<div class="empty-notes">یادداشتی یافت نشد</div>';
+                return;
+            }
+
+            notesList.innerHTML = list.map(note => `
+                <div class="note-item ${note.id === currentNoteId ? 'active' : ''}" onclick="selectNote('${note.id}')">
+                    <button class="delete-btn" onclick="deleteNote('${note.id}', event)" title="حذف">✕</button>
+                    <div class="note-title">${note.title || 'بدون عنوان'}</div>
+                    <div class="note-preview">${note.content.substring(0, 40) || 'یادداشت خالی...'}</div>
+                    <div class="note-date">${formatDate(note.updatedAt)}</div>
+                </div>
+            `).join('');
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 60000) return 'همین الان';
+            if (diff < 3600000) return Math.floor(diff / 60000) + ' دقیقه پیش';
+            if (diff < 86400000) return Math.floor(diff / 3600000) + ' ساعت پیش';
+            
+            return date.toLocaleDateString('fa-IR');
+        }
+
+        // شمارش کلمات
+        function updateWordCount() {
+            const text = noteContent.value.trim();
+            const count = text === '' ? 0 : text.split(/\s+/).length;
+            wordCount.textContent = count.toLocaleString('fa-IR') + ' کلمه';
+        }
+
+        // ذخیره در localStorage
+        function saveToStorage() {
+            localStorage.setItem('myNotes', JSON.stringify(notes));
+        }
+
+        // کیبورد
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                saveNote();
+            }
+            if (e.ctrlKey && e.key === 'n') {
+                e.preventDefault();
+                createNewNote();
+            }
+        });
+
+        // راه‌اندازی
+        renderNotesList();
+    </script>
+</body>
+</html>

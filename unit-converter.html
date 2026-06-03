@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مبدل واحدها</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            min-height: 100vh; display: flex; justify-content: center; align-items: center;
+            padding: 20px; color: white;
+        }
+        .app {
+            background: #1a1a1a; border-radius: 24px; padding: 2rem; width: 100%;
+            max-width: 550px; box-shadow: 0 20px 60px rgba(0,0,0,0.6); border: 2px solid #4ecca3;
+        }
+        .title { text-align: center; font-size: 1.8rem; color: #4ecca3; margin-bottom: 0.3rem; }
+        .subtitle { text-align: center; color: #a2a8d3; margin-bottom: 1.5rem; font-size: 0.9rem; }
+        .category-tabs {
+            display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; margin-bottom: 1.5rem;
+        }
+        .cat-btn {
+            background: #2a2a2a; color: #aaa; border: 1px solid #444; padding: 8px 14px;
+            border-radius: 20px; cursor: pointer; font-family: inherit; font-size: 0.8rem; transition: 0.2s; white-space: nowrap;
+        }
+        .cat-btn.active { background: #4ecca3; color: #1a1a1a; border-color: #4ecca3; font-weight: bold; }
+        .cat-btn:hover:not(.active) { background: #333; border-color: #4ecca3; }
+        .converter-box {
+            background: #0d0d1a; border: 1px solid #333; border-radius: 16px; padding: 1.5rem;
+        }
+        .input-group {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; flex-wrap: wrap;
+        }
+        .input-group input {
+            flex: 1; min-width: 120px; background: #1a1a1a; border: 2px solid #533483;
+            padding: 12px; border-radius: 10px; color: white; font-size: 1.2rem;
+            font-family: 'Courier New', monospace; text-align: center; direction: ltr;
+        }
+        .input-group input:focus { outline: none; border-color: #4ecca3; }
+        .input-group select {
+            background: #2a2a2a; color: white; border: 1px solid #533483; padding: 12px;
+            border-radius: 10px; font-family: inherit; font-size: 0.9rem; cursor: pointer; min-width: 100px;
+        }
+        .swap-btn {
+            background: #533483; color: white; border: none; width: 40px; height: 40px;
+            border-radius: 50%; cursor: pointer; font-size: 1.3rem; transition: 0.3s; flex-shrink: 0;
+        }
+        .swap-btn:hover { background: #4ecca3; transform: rotate(180deg); }
+        .result-area {
+            background: #1a1a1a; border: 2px solid #4ecca3; border-radius: 12px; padding: 1rem;
+            text-align: center; margin-top: 0.5rem;
+        }
+        .result-area .result-value {
+            font-size: 2rem; font-weight: bold; color: #4ecca3; font-family: 'Courier New', monospace; direction: ltr;
+        }
+        .result-area .result-label { color: #888; font-size: 0.85rem; margin-top: 4px; }
+        .formula { text-align: center; color: #666; font-size: 0.75rem; margin-top: 0.5rem; direction: ltr; }
+        .quick-converts { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 1rem; }
+        .quick-btn {
+            background: #1a1a1a; color: #ccc; border: 1px solid #333; padding: 6px 12px;
+            border-radius: 15px; cursor: pointer; font-size: 0.8rem; transition: 0.2s; font-family: inherit;
+        }
+        .quick-btn:hover { background: #4ecca3; color: #1a1a1a; border-color: #4ecca3; }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="title">🔄 مبدل واحدها</div>
+        <div class="subtitle">طول، وزن، دما، حجم، سرعت، مساحت، داده، زمان</div>
+
+        <!-- دسته‌بندی -->
+        <div class="category-tabs" id="categoryTabs">
+            <button class="cat-btn active" data-cat="length">📏 طول</button>
+            <button class="cat-btn" data-cat="weight">⚖️ وزن</button>
+            <button class="cat-btn" data-cat="temperature">🌡️ دما</button>
+            <button class="cat-btn" data-cat="volume">🧪 حجم</button>
+            <button class="cat-btn" data-cat="speed">🚀 سرعت</button>
+            <button class="cat-btn" data-cat="area">📐 مساحت</button>
+            <button class="cat-btn" data-cat="data">💾 داده</button>
+            <button class="cat-btn" data-cat="time">⏱️ زمان</button>
+        </div>
+
+        <!-- مبدل -->
+        <div class="converter-box">
+            <div class="input-group">
+                <input type="number" id="inputValue" value="1" oninput="convert()" placeholder="مقدار">
+                <select id="fromUnit" onchange="convert()"></select>
+                <button class="swap-btn" onclick="swapUnits()" title="جابه‌جا">⇄</button>
+                <select id="toUnit" onchange="convert()"></select>
+            </div>
+            <div class="result-area">
+                <div class="result-value" id="resultValue">-</div>
+                <div class="result-label" id="resultLabel">نتیجه</div>
+            </div>
+            <div class="formula" id="formula"></div>
+        </div>
+
+        <!-- تبدیل‌های سریع -->
+        <div class="quick-converts" id="quickConverts"></div>
+    </div>
+
+    <script>
+        const units = {
+            length: {
+                name: 'طول',
+                units: [
+                    { name: 'متر', symbol: 'm', toBase: 1 },
+                    { name: 'کیلومتر', symbol: 'km', toBase: 1000 },
+                    { name: 'سانتی‌متر', symbol: 'cm', toBase: 0.01 },
+                    { name: 'میلی‌متر', symbol: 'mm', toBase: 0.001 },
+                    { name: 'مایل', symbol: 'mi', toBase: 1609.34 },
+                    { name: 'یارد', symbol: 'yd', toBase: 0.9144 },
+                    { name: 'فوت', symbol: 'ft', toBase: 0.3048 },
+                    { name: 'اینچ', symbol: 'in', toBase: 0.0254 }
+                ]
+            },
+            weight: {
+                name: 'وزن',
+                units: [
+                    { name: 'کیلوگرم', symbol: 'kg', toBase: 1 },
+                    { name: 'گرم', symbol: 'g', toBase: 0.001 },
+                    { name: 'میلی‌گرم', symbol: 'mg', toBase: 0.000001 },
+                    { name: 'تن', symbol: 't', toBase: 1000 },
+                    { name: 'پوند', symbol: 'lb', toBase: 0.453592 },
+                    { name: 'اونس', symbol: 'oz', toBase: 0.0283495 }
+                ]
+            },
+            temperature: {
+                name: 'دما',
+                units: [
+                    { name: 'سلسیوس', symbol: '°C', toBase: 'c' },
+                    { name: 'فارنهایت', symbol: '°F', toBase: 'f' },
+                    { name: 'کلوین', symbol: 'K', toBase: 'k' }
+                ],
+                special: true
+            },
+            volume: {
+                name: 'حجم',
+                units: [
+                    { name: 'لیتر', symbol: 'L', toBase: 1 },
+                    { name: 'میلی‌لیتر', symbol: 'mL', toBase: 0.001 },
+                    { name: 'متر مکعب', symbol: 'm³', toBase: 1000 },
+                    { name: 'گالن (آمریکا)', symbol: 'gal', toBase: 3.78541 },
+                    { name: 'پاینت', symbol: 'pt', toBase: 0.473176 }
+                ]
+            },
+            speed: {
+                name: 'سرعت',
+                units: [
+                    { name: 'متر بر ثانیه', symbol: 'm/s', toBase: 1 },
+                    { name: 'کیلومتر بر ساعت', symbol: 'km/h', toBase: 0.277778 },
+                    { name: 'مایل بر ساعت', symbol: 'mph', toBase: 0.44704 },
+                    { name: 'گره', symbol: 'kn', toBase: 0.514444 }
+                ]
+            },
+            area: {
+                name: 'مساحت',
+                units: [
+                    { name: 'متر مربع', symbol: 'm²', toBase: 1 },
+                    { name: 'کیلومتر مربع', symbol: 'km²', toBase: 1000000 },
+                    { name: 'هکتار', symbol: 'ha', toBase: 10000 },
+                    { name: 'اینچ مربع', symbol: 'in²', toBase: 0.00064516 },
+                    { name: 'فوت مربع', symbol: 'ft²', toBase: 0.092903 }
+                ]
+            },
+            data: {
+                name: 'داده',
+                units: [
+                    { name: 'بایت', symbol: 'B', toBase: 1 },
+                    { name: 'کیلوبایت', symbol: 'KB', toBase: 1024 },
+                    { name: 'مگابایت', symbol: 'MB', toBase: 1048576 },
+                    { name: 'گیگابایت', symbol: 'GB', toBase: 1073741824 },
+                    { name: 'ترابایت', symbol: 'TB', toBase: 1099511627776 }
+                ]
+            },
+            time: {
+                name: 'زمان',
+                units: [
+                    { name: 'ثانیه', symbol: 's', toBase: 1 },
+                    { name: 'دقیقه', symbol: 'min', toBase: 60 },
+                    { name: 'ساعت', symbol: 'h', toBase: 3600 },
+                    { name: 'روز', symbol: 'd', toBase: 86400 },
+                    { name: 'هفته', symbol: 'wk', toBase: 604800 },
+                    { name: 'ماه (۳۰ روز)', symbol: 'mo', toBase: 2592000 },
+                    { name: 'سال (۳۶۵ روز)', symbol: 'yr', toBase: 31536000 }
+                ]
+            }
+        };
+
+        let currentCategory = 'length';
+
+        // مقداردهی اولیه
+        function init() {
+            setupCategoryTabs();
+            updateUnitSelects();
+            updateQuickConverts();
+            convert();
+        }
+
+        function setupCategoryTabs() {
+            document.getElementById('categoryTabs').addEventListener('click', function(e) {
+                if (e.target.classList.contains('cat-btn')) {
+                    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    currentCategory = e.target.dataset.cat;
+                    updateUnitSelects();
+                    updateQuickConverts();
+                    convert();
+                }
+            });
+        }
+
+        function updateUnitSelects() {
+            const cat = units[currentCategory];
+            const fromSelect = document.getElementById('fromUnit');
+            const toSelect = document.getElementById('toUnit');
+            
+            fromSelect.innerHTML = cat.units.map((u, i) => 
+                `<option value="${i}">${u.name} (${u.symbol})</option>`
+            ).join('');
+            toSelect.innerHTML = cat.units.map((u, i) => 
+                `<option value="${i}" ${i === 1 ? 'selected' : ''}>${u.name} (${u.symbol})</option>`
+            ).join('');
+        }
+
+        function updateQuickConverts() {
+            const cat = units[currentCategory];
+            const container = document.getElementById('quickConverts');
+            
+            let quickValues = [];
+            if (currentCategory === 'length') quickValues = [100, 1000, 1.5, 5];
+            else if (currentCategory === 'weight') quickValues = [1, 70, 500, 1000];
+            else if (currentCategory === 'temperature') quickValues = [0, 100, 37, -40];
+            else if (currentCategory === 'volume') quickValues = [1, 500, 3.78, 1000];
+            else if (currentCategory === 'speed') quickValues = [100, 60, 120, 300];
+            else if (currentCategory === 'area') quickValues = [1, 100, 10000, 4046];
+            else if (currentCategory === 'data') quickValues = [1024, 1048576, 1073741824, 1];
+            else if (currentCategory === 'time') quickValues = [60, 3600, 86400, 604800];
+            else quickValues = [1, 10, 100, 1000];
+
+            container.innerHTML = quickValues.map(v => 
+                `<button class="quick-btn" onclick="setQuickValue(${v})">${v.toLocaleString('fa-IR')}</button>`
+            ).join('');
+        }
+
+        function setQuickValue(value) {
+            document.getElementById('inputValue').value = value;
+            convert();
+        }
+
+        function swapUnits() {
+            const fromSelect = document.getElementById('fromUnit');
+            const toSelect = document.getElementById('toUnit');
+            const temp = fromSelect.value;
+            fromSelect.value = toSelect.value;
+            toSelect.value = temp;
+            convert();
+        }
+
+        function convert() {
+            const inputVal = parseFloat(document.getElementById('inputValue').value) || 0;
+            const fromIndex = parseInt(document.getElementById('fromUnit').value);
+            const toIndex = parseInt(document.getElementById('toUnit').value);
+            const cat = units[currentCategory];
+            const fromUnit = cat.units[fromIndex];
+            const toUnit = cat.units[toIndex];
+
+            let result;
+            let formulaText = '';
+
+            if (cat.special) {
+                // تبدیل دما
+                result = convertTemperature(inputVal, fromUnit.symbol, toUnit.symbol);
+                formulaText = `${inputVal}${fromUnit.symbol} = ${result}${toUnit.symbol}`;
+            } else {
+                // تبدیل استاندارد
+                const baseValue = inputVal * fromUnit.toBase;
+                result = baseValue / toUnit.toBase;
+                formulaText = `1 ${fromUnit.symbol} = ${(fromUnit.toBase / toUnit.toBase)} ${toUnit.symbol}`;
+            }
+
+            // نمایش
+            document.getElementById('resultValue').textContent = formatNumber(result);
+            document.getElementById('resultLabel').textContent = toUnit.name;
+            document.getElementById('formula').textContent = formulaText;
+        }
+
+        function convertTemperature(value, from, to) {
+            let celsius;
+            // به سلسیوس
+            switch(from) {
+                case '°C': celsius = value; break;
+                case '°F': celsius = (value - 32) * 5/9; break;
+                case 'K': celsius = value - 273.15; break;
+                default: celsius = value;
+            }
+            // به واحد مقصد
+            switch(to) {
+                case '°C': return celsius;
+                case '°F': return (celsius * 9/5) + 32;
+                case 'K': return celsius + 273.15;
+                default: return celsius;
+            }
+        }
+
+        function formatNumber(num) {
+            if (isNaN(num)) return '-';
+            if (Math.abs(num) < 0.000001 || Math.abs(num) > 999999999) {
+                return num.toExponential(6);
+            }
+            return parseFloat(num.toFixed(6)).toString();
+        }
+
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدیریت هزینه و بودجه</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            min-height: 100vh; display: flex; justify-content: center; align-items: center;
+            padding: 20px; color: white;
+        }
+        .app {
+            background: #1a1a1a; border-radius: 24px; padding: 1.8rem; width: 100%;
+            max-width: 600px; box-shadow: 0 20px 60px rgba(0,0,0,0.6); border: 2px solid #4ecca3;
+        }
+        .title { text-align: center; font-size: 1.8rem; color: #4ecca3; margin-bottom: 0.3rem; }
+        .subtitle { text-align: center; color: #a2a8d3; margin-bottom: 1rem; font-size: 0.9rem; }
+        .summary {
+            display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem;
+        }
+        .summary-card {
+            background: #0d0d1a; border: 1px solid #333; border-radius: 12px; padding: 12px 18px;
+            text-align: center; min-width: 90px; flex: 1;
+        }
+        .summary-card .val { font-size: 1.5rem; font-weight: bold; direction: ltr; }
+        .summary-card .lbl { font-size: 0.75rem; color: #888; margin-top: 2px; }
+        .income-val { color: #4ecca3; }
+        .expense-val { color: #e94560; }
+        .balance-val { color: #f39c12; }
+        .form-area {
+            background: #0d0d1a; border: 1px solid #333; border-radius: 12px; padding: 1rem;
+            margin-bottom: 1rem; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+        }
+        .form-area input, .form-area select {
+            background: #1a1a1a; border: 1px solid #533483; padding: 10px; border-radius: 8px;
+            color: white; font-family: inherit; font-size: 0.9rem;
+        }
+        .form-area input { flex: 1; min-width: 120px; direction: ltr; text-align: left; }
+        .form-area select { min-width: 80px; cursor: pointer; }
+        .form-area input:focus, .form-area select:focus { outline: none; border-color: #4ecca3; }
+        .form-area button {
+            background: #4ecca3; color: #1a1a1a; border: none; padding: 10px 16px;
+            border-radius: 8px; font-weight: bold; cursor: pointer; font-family: inherit; font-size: 0.9rem;
+        }
+        .form-area button:hover { background: #3baa8a; }
+        .transactions {
+            max-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;
+        }
+        .transaction {
+            background: #0d0d1a; border: 1px solid #333; border-radius: 8px; padding: 10px 14px;
+            display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-15px); } to { opacity: 1; transform: translateX(0); } }
+        .transaction.income { border-right: 4px solid #4ecca3; }
+        .transaction.expense { border-right: 4px solid #e94560; }
+        .transaction .info { flex: 1; }
+        .transaction .info .desc { font-weight: bold; }
+        .transaction .info .cat { font-size: 0.75rem; color: #888; }
+        .transaction .amount { font-weight: bold; direction: ltr; font-family: 'Courier New', monospace; }
+        .transaction.income .amount { color: #4ecca3; }
+        .transaction.expense .amount { color: #e94560; }
+        .transaction .delete-btn {
+            background: none; border: none; color: #666; cursor: pointer; font-size: 1rem;
+            padding: 2px 6px; border-radius: 4px; margin-right: 8px;
+        }
+        .transaction .delete-btn:hover { color: #e94560; background: rgba(233,69,96,0.2); }
+        .empty { text-align: center; color: #555; padding: 2rem; }
+        .chart-bar {
+            display: flex; gap: 4px; align-items: flex-end; height: 80px; margin: 1rem 0; padding: 0 10px;
+        }
+        .chart-bar .bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .chart-bar .bar {
+            width: 100%; max-width: 40px; border-radius: 6px 6px 0 0; transition: height 0.5s ease;
+            min-height: 2px;
+        }
+        .chart-bar .bar.income-bar { background: #4ecca3; }
+        .chart-bar .bar.expense-bar { background: #e94560; }
+        .chart-bar .bar-label { font-size: 0.65rem; color: #888; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="title">💰 مدیریت هزینه</div>
+        <div class="subtitle">دخل و خرج خود را ثبت و مدیریت کنید</div>
+
+        <!-- خلاصه -->
+        <div class="summary">
+            <div class="summary-card">
+                <div class="val income-val" id="totalIncome">۰</div>
+                <div class="lbl">💰 دخل (تومان)</div>
+            </div>
+            <div class="summary-card">
+                <div class="val expense-val" id="totalExpense">۰</div>
+                <div class="lbl">💸 خرج (تومان)</div>
+            </div>
+            <div class="summary-card">
+                <div class="val balance-val" id="balance">۰</div>
+                <div class="lbl">📊 موجودی</div>
+            </div>
+        </div>
+
+        <!-- نمودار -->
+        <div class="chart-bar" id="chartBar">
+            <div class="bar-group"><div class="bar income-bar" id="incomeBar" style="height:0%"></div><div class="bar-label">دخل</div></div>
+            <div class="bar-group"><div class="bar expense-bar" id="expenseBar" style="height:0%"></div><div class="bar-label">خرج</div></div>
+        </div>
+
+        <!-- فرم -->
+        <div class="form-area">
+            <input type="text" id="descInput" placeholder="شرح..." onkeypress="if(event.key==='Enter') addTransaction()">
+            <input type="number" id="amountInput" placeholder="مبلغ (تومان)" onkeypress="if(event.key==='Enter') addTransaction()" style="max-width:140px;">
+            <select id="categorySelect">
+                <option value="حقوق">💼 حقوق</option>
+                <option value="غذا">🍕 غذا</option>
+                <option value="حمل و نقل">🚗 حمل و نقل</option>
+                <option value="خرید">🛒 خرید</option>
+                <option value="قبوض">🧾 قبوض</option>
+                <option value="تفریح">🎮 تفریح</option>
+                <option value="سایر">📦 سایر</option>
+            </select>
+            <button onclick="addTransaction('income')">➕ دخل</button>
+            <button onclick="addTransaction('expense')" style="background:#e94560;">➖ خرج</button>
+        </div>
+
+        <!-- تراکنش‌ها -->
+        <div class="transactions" id="transactionsList">
+            <div class="empty">هنوز تراکنشی ثبت نشده</div>
+        </div>
+    </div>
+
+    <script>
+        let transactions = JSON.parse(localStorage.getItem('budgetTransactions') || '[]');
+
+        function addTransaction(type) {
+            const desc = document.getElementById('descInput').value.trim();
+            const amount = parseInt(document.getElementById('amountInput').value);
+            const category = document.getElementById('categorySelect').value;
+
+            if (!desc || !amount || amount <= 0) {
+                alert('لطفاً شرح و مبلغ معتبر وارد کنید.');
+                return;
+            }
+
+            transactions.unshift({
+                id: Date.now(),
+                type,
+                desc,
+                amount,
+                category,
+                date: new Date().toISOString()
+            });
+
+            document.getElementById('descInput').value = '';
+            document.getElementById('amountInput').value = '';
+            
+            saveAndRender();
+        }
+
+        function deleteTransaction(id) {
+            transactions = transactions.filter(t => t.id !== id);
+            saveAndRender();
+        }
+
+        function getTotals() {
+            const income = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+            const expense = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+            return { income, expense, balance: income - expense };
+        }
+
+        function formatCurrency(num) {
+            return num.toLocaleString('fa-IR');
+        }
+
+        function renderTransactions() {
+            const list = document.getElementById('transactionsList');
+            
+            if (transactions.length === 0) {
+                list.innerHTML = '<div class="empty">هنوز تراکنشی ثبت نشده</div>';
+                return;
+            }
+
+            list.innerHTML = transactions.map(t => `
+                <div class="transaction ${t.type}">
+                    <button class="delete-btn" onclick="deleteTransaction(${t.id})">✕</button>
+                    <div class="info">
+                        <div class="desc">${t.desc}</div>
+                        <div class="cat">${t.category} • ${new Date(t.date).toLocaleDateString('fa-IR')}</div>
+                    </div>
+                    <div class="amount">${t.type === 'income' ? '+' : '-'}${formatCurrency(t.amount)}</div>
+                </div>
+            `).join('');
+        }
+
+        function updateChart() {
+            const { income, expense } = getTotals();
+            const max = Math.max(income, expense, 1);
+            const incomePercent = Math.round((income / max) * 100);
+            const expensePercent = Math.round((expense / max) * 100);
+            
+            document.getElementById('incomeBar').style.height = incomePercent + '%';
+            document.getElementById('expenseBar').style.height = expensePercent + '%';
+        }
+
+        function saveAndRender() {
+            localStorage.setItem('budgetTransactions', JSON.stringify(transactions));
+            
+            const { income, expense, balance } = getTotals();
+            document.getElementById('totalIncome').textContent = formatCurrency(income);
+            document.getElementById('totalExpense').textContent = formatCurrency(expense);
+            document.getElementById('balance').textContent = formatCurrency(balance);
+            
+            renderTransactions();
+            updateChart();
+        }
+
+        // شروع
+        saveAndRender();
+    </script>
+</body>
+</html>

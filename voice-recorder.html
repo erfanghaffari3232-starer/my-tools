@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ضبط کننده صدا</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: white;
+        }
+        .recorder {
+            background: #1a1a1a;
+            border-radius: 24px;
+            padding: 2.5rem 2rem;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            border: 2px solid #e94560;
+        }
+        .title {
+            font-size: 1.8rem;
+            color: #e94560;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 20px rgba(233,69,96,0.5);
+        }
+        .subtitle {
+            color: #a2a8d3;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+        .visualizer {
+            width: 100%;
+            height: 100px;
+            background: #0a0a0a;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            border: 1px solid #333;
+            overflow: hidden;
+        }
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .timer {
+            font-size: 3.5rem;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            color: #4ecca3;
+            margin-bottom: 1.5rem;
+            letter-spacing: 3px;
+            direction: ltr;
+        }
+        .timer.recording {
+            color: #e94560;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        button {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: inherit;
+        }
+        .record-btn {
+            background: #e94560;
+            color: white;
+            box-shadow: 0 5px 25px rgba(233,69,96,0.4);
+        }
+        .record-btn:hover {
+            background: #c73652;
+            transform: scale(1.05);
+        }
+        .record-btn.recording {
+            background: #ff0000;
+            animation: pulseBtn 1s infinite;
+        }
+        @keyframes pulseBtn {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255,0,0,0.5); }
+            50% { box-shadow: 0 0 0 15px rgba(255,0,0,0); }
+        }
+        .play-btn {
+            background: #4ecca3;
+            color: #1a1a1a;
+        }
+        .play-btn:hover {
+            background: #3baa8a;
+        }
+        .stop-btn {
+            background: #ff6b6b;
+            color: white;
+        }
+        .stop-btn:hover {
+            background: #d94444;
+        }
+        .secondary-btn {
+            background: #533483;
+            color: white;
+        }
+        .secondary-btn:hover {
+            background: #6c3fa0;
+        }
+        .download-btn {
+            background: #0f3460;
+            color: white;
+            border: 1px solid #4ecca3;
+        }
+        .download-btn:hover {
+            background: #4ecca3;
+            color: #1a1a1a;
+        }
+        .recordings-list {
+            margin-top: 1.5rem;
+            text-align: right;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .recordings-list h4 {
+            color: #a2a8d3;
+            margin-bottom: 0.5rem;
+        }
+        .recording-item {
+            background: #2a2a2a;
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+        .recording-item button {
+            padding: 5px 10px;
+            font-size: 0.75rem;
+        }
+        .status {
+            margin-top: 1rem;
+            color: #a2a8d3;
+            font-size: 0.85rem;
+            min-height: 20px;
+        }
+        audio {
+            width: 100%;
+            margin-top: 10px;
+            display: none;
+            accent-color: #e94560;
+        }
+    </style>
+</head>
+<body>
+    <div class="recorder">
+        <div class="title">🎙️ ضبط کننده صدا</div>
+        <div class="subtitle">صدای خود را ضبط، پخش و دانلود کنید</div>
+
+        <!-- نمایشگر موج صوتی -->
+        <div class="visualizer">
+            <canvas id="visualizer"></canvas>
+        </div>
+
+        <!-- تایمر -->
+        <div class="timer" id="timer">00:00</div>
+
+        <!-- دکمه‌ها -->
+        <div class="btn-group">
+            <button class="record-btn" id="recordBtn" onclick="toggleRecording()">
+                🎤 شروع ضبط
+            </button>
+            <button class="play-btn" id="playBtn" onclick="togglePlayback()" disabled>
+                ▶️ پخش
+            </button>
+        </div>
+        <div class="btn-group">
+            <button class="stop-btn" id="stopBtn" onclick="stopAll()" disabled>
+                ⏹️ توقف کامل
+            </button>
+            <button class="download-btn" id="downloadBtn" onclick="downloadRecording()" disabled>
+                💾 دانلود
+            </button>
+        </div>
+
+        <!-- پلیر صدا -->
+        <audio id="audioPlayer" controls></audio>
+
+        <!-- وضعیت -->
+        <div class="status" id="statusMessage">آماده ضبط 🎤</div>
+
+        <!-- لیست ضبط‌ها -->
+        <div class="recordings-list" id="recordingsList" style="display:none;">
+            <h4>📂 ضبط‌های قبلی</h4>
+            <div id="recordingsContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
+        let recordingStartTime;
+        let timerInterval;
+        let audioUrl;
+        let audioContext;
+        let analyser;
+        let animationId;
+        let recordings = [];
+
+        const recordBtn = document.getElementById('recordBtn');
+        const playBtn = document.getElementById('playBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const timerDisplay = document.getElementById('timer');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const statusMessage = document.getElementById('statusMessage');
+        const visualizer = document.getElementById('visualizer');
+        const canvasCtx = visualizer.getContext('2d');
+        const recordingsContainer = document.getElementById('recordingsContainer');
+        const recordingsList = document.getElementById('recordingsList');
+
+        // درخواست دسترسی به میکروفن
+        async function initRecorder() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                
+                // راه‌اندازی AudioContext برای موج صوتی
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const source = audioContext.createMediaStreamSource(stream);
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+                source.connect(analyser);
+                
+                // راه‌اندازی MediaRecorder
+                mediaRecorder = new MediaRecorder(stream);
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                    }
+                };
+
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    audioUrl = URL.createObjectURL(audioBlob);
+                    audioPlayer.src = audioUrl;
+                    audioPlayer.style.display = 'block';
+                    playBtn.disabled = false;
+                    downloadBtn.disabled = false;
+                    
+                    // اضافه به لیست
+                    const now = new Date();
+                    const name = `ضبط ${now.toLocaleTimeString('fa-IR')}`;
+                    recordings.push({ name, url: audioUrl, blob: audioBlob, time: now });
+                    updateRecordingsList();
+                    
+                    statusMessage.textContent = '✅ ضبط تمام شد. می‌توانید پخش یا دانلود کنید.';
+                    statusMessage.style.color = '#4ecca3';
+                };
+
+                statusMessage.textContent = '✅ میکروفن آماده است. دکمه ضبط را بزنید.';
+                statusMessage.style.color = '#4ecca3';
+                drawVisualizer();
+                
+            } catch (err) {
+                statusMessage.textContent = '❌ دسترسی به میکروفن ممکن نیست. لطفاً اجازه دسترسی را بدهید.';
+                statusMessage.style.color = '#e94560';
+                recordBtn.disabled = true;
+                console.error(err);
+            }
+        }
+
+        // شروع/توقف ضبط
+        function toggleRecording() {
+            if (!isRecording) {
+                startRecording();
+            } else {
+                stopRecording();
+            }
+        }
+
+        function startRecording() {
+            audioChunks = [];
+            mediaRecorder.start();
+            isRecording = true;
+            recordingStartTime = Date.now();
+            
+            recordBtn.textContent = '⏸️ توقف ضبط';
+            recordBtn.classList.add('recording');
+            stopBtn.disabled = false;
+            playBtn.disabled = true;
+            downloadBtn.disabled = true;
+            audioPlayer.style.display = 'none';
+            timerDisplay.classList.add('recording');
+            
+            statusMessage.textContent = '🔴 در حال ضبط...';
+            statusMessage.style.color = '#e94560';
+            
+            timerInterval = setInterval(updateTimer, 100);
+        }
+
+        function stopRecording() {
+            mediaRecorder.stop();
+            isRecording = false;
+            clearInterval(timerInterval);
+            
+            recordBtn.textContent = '🎤 ضبط جدید';
+            recordBtn.classList.remove('recording');
+            stopBtn.disabled = true;
+            timerDisplay.classList.remove('recording');
+            timerDisplay.textContent = '00:00';
+            
+            statusMessage.textContent = '⏳ در حال پردازش صدا...';
+            statusMessage.style.color = '#a2a8d3';
+        }
+
+        // توقف کامل
+        function stopAll() {
+            if (isRecording) {
+                stopRecording();
+            }
+            audioPlayer.pause();
+            audioPlayer.currentTime = 0;
+            playBtn.textContent = '▶️ پخش';
+        }
+
+        // پخش/توقف صدا
+        function togglePlayback() {
+            if (audioPlayer.paused) {
+                audioPlayer.play();
+                playBtn.textContent = '⏸️ توقف پخش';
+            } else {
+                audioPlayer.pause();
+                playBtn.textContent = '▶️ پخش';
+            }
+        }
+
+        audioPlayer.addEventListener('ended', () => {
+            playBtn.textContent = '▶️ پخش';
+        });
+
+        audioPlayer.addEventListener('play', () => {
+            playBtn.textContent = '⏸️ توقف پخش';
+        });
+
+        audioPlayer.addEventListener('pause', () => {
+            playBtn.textContent = '▶️ پخش';
+        });
+
+        // دانلود
+        function downloadRecording() {
+            if (!audioUrl) return;
+            const a = document.createElement('a');
+            a.href = audioUrl;
+            a.download = 'recording.webm';
+            a.click();
+        }
+
+        // تایمر
+        function updateTimer() {
+            const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+            const mins = Math.floor(elapsed / 60);
+            const secs = elapsed % 60;
+            timerDisplay.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        // موج صوتی
+        function drawVisualizer() {
+            animationId = requestAnimationFrame(drawVisualizer);
+            
+            if (!analyser) return;
+            
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            
+            if (isRecording) {
+                analyser.getByteFrequencyData(dataArray);
+            } else {
+                dataArray.fill(0);
+            }
+            
+            canvasCtx.clearRect(0, 0, visualizer.width, visualizer.height);
+            visualizer.width = visualizer.clientWidth;
+            visualizer.height = visualizer.clientHeight;
+            
+            const barWidth = (visualizer.width / bufferLength) * 2.5;
+            let x = 0;
+            
+            for (let i = 0; i < bufferLength; i++) {
+                const barHeight = (dataArray[i] / 255) * visualizer.height;
+                
+                const gradient = canvasCtx.createLinearGradient(0, visualizer.height, 0, visualizer.height - barHeight);
+                gradient.addColorStop(0, '#e94560');
+                gradient.addColorStop(1, '#4ecca3');
+                
+                canvasCtx.fillStyle = gradient;
+                canvasCtx.fillRect(x, visualizer.height - barHeight, barWidth - 1, barHeight);
+                
+                x += barWidth;
+            }
+        }
+
+        // لیست ضبط‌ها
+        function updateRecordingsList() {
+            if (recordings.length > 0) {
+                recordingsList.style.display = 'block';
+                recordingsContainer.innerHTML = recordings.map((rec, index) => `
+                    <div class="recording-item">
+                        <span>🎵 ${rec.name}</span>
+                        <div>
+                            <button onclick="playRecording(${index})" style="background:#4ecca3;color:#1a1a1a;">▶️</button>
+                            <button onclick="downloadRecordingByIndex(${index})" style="background:#0f3460;">💾</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function playRecording(index) {
+            audioPlayer.src = recordings[index].url;
+            audioPlayer.style.display = 'block';
+            audioPlayer.play();
+            playBtn.disabled = false;
+            downloadBtn.disabled = false;
+            audioUrl = recordings[index].url;
+        }
+
+        function downloadRecordingByIndex(index) {
+            const a = document.createElement('a');
+            a.href = recordings[index].url;
+            a.download = `recording-${index + 1}.webm`;
+            a.click();
+        }
+
+        // شروع
+        initRecorder();
+    </script>
+</body>
+</html>

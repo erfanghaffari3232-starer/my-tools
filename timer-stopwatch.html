@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تایمر و کرونومتر</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: white;
+        }
+        .container {
+            background: #1a1a1a;
+            border-radius: 24px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            border: 2px solid #e94560;
+            text-align: center;
+        }
+        .tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 1.5rem;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid #533483;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            background: #1a1a2e;
+            color: #a2a8d3;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        .tab-btn.active {
+            background: #e94560;
+            color: white;
+        }
+        .tab-btn:hover:not(.active) {
+            background: #2a2a4e;
+        }
+        .display {
+            font-size: 5rem;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            direction: ltr;
+            margin: 1.5rem 0;
+            color: #4ecca3;
+            text-shadow: 0 0 30px rgba(78, 204, 163, 0.4);
+            letter-spacing: 5px;
+            background: #0a0a0a;
+            padding: 1.5rem;
+            border-radius: 20px;
+            border: 1px solid #333;
+        }
+        .display.warning {
+            color: #f39c12;
+            text-shadow: 0 0 30px rgba(243, 156, 18, 0.4);
+            animation: flash 0.5s infinite;
+        }
+        .display.danger {
+            color: #e94560;
+            text-shadow: 0 0 30px rgba(233, 69, 96, 0.6);
+            animation: flash 0.3s infinite;
+        }
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .timer-inputs {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .time-input {
+            text-align: center;
+        }
+        .time-input label {
+            display: block;
+            font-size: 0.8rem;
+            color: #a2a8d3;
+            margin-bottom: 4px;
+        }
+        .time-input input {
+            width: 70px;
+            background: #0d0d1a;
+            border: 2px solid #533483;
+            color: white;
+            font-size: 1.5rem;
+            text-align: center;
+            padding: 10px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            transition: 0.3s;
+        }
+        .time-input input:focus {
+            outline: none;
+            border-color: #e94560;
+        }
+        .time-separator {
+            font-size: 2rem;
+            color: #e94560;
+            font-weight: bold;
+        }
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+        }
+        button {
+            padding: 14px 22px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            min-width: 80px;
+        }
+        .start-btn {
+            background: #4ecca3;
+            color: #1a1a1a;
+        }
+        .start-btn:hover {
+            background: #3baa8a;
+            box-shadow: 0 0 20px rgba(78, 204, 163, 0.4);
+        }
+        .pause-btn {
+            background: #f39c12;
+            color: #1a1a1a;
+        }
+        .pause-btn:hover {
+            background: #e67e22;
+        }
+        .reset-btn {
+            background: #e94560;
+            color: white;
+        }
+        .reset-btn:hover {
+            background: #c73652;
+        }
+        .lap-btn {
+            background: #533483;
+            color: white;
+        }
+        .lap-btn:hover {
+            background: #6c3fa0;
+        }
+        .lap-list {
+            margin-top: 1.5rem;
+            text-align: right;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .lap-list h4 {
+            color: #a2a8d3;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        .lap-item {
+            background: #2a2a2a;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Courier New', monospace;
+            direction: ltr;
+            font-size: 0.95rem;
+        }
+        .lap-item .lap-num {
+            color: #e94560;
+        }
+        .lap-item .lap-time {
+            color: #4ecca3;
+        }
+        .lap-item .lap-total {
+            color: #a2a8d3;
+            font-size: 0.8rem;
+        }
+        .preset-btns {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+        }
+        .preset-btn {
+            background: #2a2a2a;
+            color: #ccc;
+            border: 1px solid #444;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .preset-btn:hover {
+            background: #e94560;
+            color: white;
+            border-color: #e94560;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- تب‌ها -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('stopwatch')">⏱️ کرونومتر</button>
+            <button class="tab-btn" onclick="switchTab('timer')">⏲️ تایمر شمارش معکوس</button>
+        </div>
+
+        <!-- نمایشگر -->
+        <div class="display" id="display">00:00:00</div>
+
+        <!-- بخش تایمر -->
+        <div id="timerSection" style="display:none;">
+            <div class="timer-inputs">
+                <div class="time-input">
+                    <label>ساعت</label>
+                    <input type="number" id="hoursInput" value="0" min="0" max="99">
+                </div>
+                <span class="time-separator">:</span>
+                <div class="time-input">
+                    <label>دقیقه</label>
+                    <input type="number" id="minutesInput" value="5" min="0" max="59">
+                </div>
+                <span class="time-separator">:</span>
+                <div class="time-input">
+                    <label>ثانیه</label>
+                    <input type="number" id="secondsInput" value="0" min="0" max="59">
+                </div>
+            </div>
+            <div class="preset-btns">
+                <button class="preset-btn" onclick="setPreset(1,0)">۱ دقیقه</button>
+                <button class="preset-btn" onclick="setPreset(3,0)">۳ دقیقه</button>
+                <button class="preset-btn" onclick="setPreset(5,0)">۵ دقیقه</button>
+                <button class="preset-btn" onclick="setPreset(10,0)">۱۰ دقیقه</button>
+                <button class="preset-btn" onclick="setPreset(15,0)">۱۵ دقیقه</button>
+                <button class="preset-btn" onclick="setPreset(30,0)">۳۰ دقیقه</button>
+                <button class="preset-btn" onclick="setPreset(0,1)">۱ ساعت</button>
+            </div>
+        </div>
+
+        <!-- دکمه‌ها -->
+        <div class="btn-row">
+            <button class="start-btn" id="startBtn" onclick="startStop()">▶️ شروع</button>
+            <button class="reset-btn" id="resetBtn" onclick="resetAll()">🔄 بازنشانی</button>
+            <button class="lap-btn" id="lapBtn" onclick="recordLap()" disabled>🏁 ثبت دور</button>
+        </div>
+
+        <!-- لیست دورها -->
+        <div class="lap-list" id="lapSection" style="display:none;">
+            <h4>📋 زمان‌های ثبت شده</h4>
+            <div id="lapList"></div>
+        </div>
+    </div>
+
+    <!-- صدای آلارم -->
+    <audio id="alarmSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACAf39/f4B/f3+AgH9/f3+AgH9/f4CAf39/f4CAf39/f4CAf39/f4CAf39/gIB/f39/gIB/f39/gIB/f39/gIB/f39/gIB/f39/gIB/f39/gIB/f39/gIB/f39/gIB/f39/gIB/f39/gIB/f39/gIB/f39/gIB/f39/gIB/f39/gIB/f39/gIB/f39/gIB/f39/gIB/f39/gIB/f39/gIB/f39/gIB/f39/gA==" type="audio/wav">
+    </audio>
+
+    <script>
+        let currentTab = 'stopwatch';
+        let isRunning = false;
+        let intervalId = null;
+        let startTime = 0;
+        let elapsedTime = 0;
+        let timerTotalMs = 0;
+        let laps = [];
+
+        const display = document.getElementById('display');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const lapBtn = document.getElementById('lapBtn');
+        const alarmSound = document.getElementById('alarmSound');
+        const hoursInput = document.getElementById('hoursInput');
+        const minutesInput = document.getElementById('minutesInput');
+        const secondsInput = document.getElementById('secondsInput');
+
+        // تعویض تب
+        function switchTab(tab) {
+            currentTab = tab;
+            resetAll();
+            
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            if (tab === 'stopwatch') {
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+                document.getElementById('timerSection').style.display = 'none';
+                lapBtn.style.display = 'inline-block';
+            } else {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('timerSection').style.display = 'block';
+                lapBtn.style.display = 'none';
+                updateTimerDisplay();
+            }
+        }
+
+        // شروع/توقف
+        function startStop() {
+            if (isRunning) {
+                pause();
+            } else {
+                start();
+            }
+        }
+
+        function start() {
+            if (currentTab === 'timer') {
+                const hours = parseInt(hoursInput.value) || 0;
+                const minutes = parseInt(minutesInput.value) || 0;
+                const seconds = parseInt(secondsInput.value) || 0;
+                timerTotalMs = (hours * 3600 + minutes * 60 + seconds) * 1000;
+                
+                if (timerTotalMs <= 0) {
+                    alert('لطفاً زمان معتبری وارد کنید.');
+                    return;
+                }
+            }
+
+            isRunning = true;
+            startTime = Date.now() - elapsedTime;
+            
+            intervalId = setInterval(update, 50);
+            
+            startBtn.textContent = '⏸️ توقف';
+            startBtn.classList.remove('start-btn');
+            startBtn.classList.add('pause-btn');
+            
+            if (currentTab === 'stopwatch') {
+                lapBtn.disabled = false;
+            }
+        }
+
+        function pause() {
+            isRunning = false;
+            clearInterval(intervalId);
+            
+            startBtn.textContent = '▶️ ادامه';
+            startBtn.classList.remove('pause-btn');
+            startBtn.classList.add('start-btn');
+            lapBtn.disabled = true;
+        }
+
+        // بروزرسانی
+        function update() {
+            if (currentTab === 'stopwatch') {
+                elapsedTime = Date.now() - startTime;
+                displayTime(elapsedTime);
+            } else {
+                const remaining = timerTotalMs - (Date.now() - startTime);
+                
+                if (remaining <= 0) {
+                    elapsedTime = 0;
+                    displayTime(0);
+                    pause();
+                    timerFinished();
+                    return;
+                }
+                
+                elapsedTime = remaining;
+                displayTime(remaining);
+                
+                // هشدارها
+                display.classList.remove('warning', 'danger');
+                if (remaining < 10000) {
+                    display.classList.add('danger');
+                } else if (remaining < 30000) {
+                    display.classList.add('warning');
+                }
+            }
+        }
+
+        function displayTime(ms) {
+            const totalSeconds = Math.floor(ms / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            
+            display.textContent = 
+                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        function updateTimerDisplay() {
+            const hours = parseInt(hoursInput.value) || 0;
+            const minutes = parseInt(minutesInput.value) || 0;
+            const seconds = parseInt(secondsInput.value) || 0;
+            display.textContent = 
+                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        // پایان تایمر
+        function timerFinished() {
+            display.classList.add('danger');
+            playAlarm();
+            
+            // لرزش صفحه (اگر پشتیبانی بشه)
+            if (navigator.vibrate) {
+                navigator.vibrate([200, 100, 200, 100, 200]);
+            }
+            
+            setTimeout(() => {
+                display.classList.remove('danger');
+            }, 3000);
+        }
+
+        function playAlarm() {
+            alarmSound.currentTime = 0;
+            alarmSound.play().catch(() => {});
+            
+            // تکرار آلارم
+            setTimeout(() => {
+                alarmSound.currentTime = 0;
+                alarmSound.play().catch(() => {});
+            }, 500);
+            
+            setTimeout(() => {
+                alarmSound.currentTime = 0;
+                alarmSound.play().catch(() => {});
+            }, 1000);
+        }
+
+        // ثبت دور (فقط کرونومتر)
+        function recordLap() {
+            if (currentTab !== 'stopwatch' || !isRunning) return;
+            
+            const lapTime = elapsedTime;
+            const previousTotal = laps.length > 0 ? laps[0].total : 0;
+            const lapDuration = laps.length > 0 ? lapTime - laps[0].total : lapTime;
+            
+            laps.unshift({
+                number: laps.length + 1,
+                lap: lapDuration,
+                total: lapTime
+            });
+            
+            renderLaps();
+        }
+
+        function renderLaps() {
+            const lapSection = document.getElementById('lapSection');
+            const lapList = document.getElementById('lapList');
+            
+            if (laps.length === 0) {
+                lapSection.style.display = 'none';
+                return;
+            }
+            
+            lapSection.style.display = 'block';
+            lapList.innerHTML = laps.map(lap => `
+                <div class="lap-item">
+                    <span class="lap-num">#${lap.number}</span>
+                    <span class="lap-time">+${formatMs(lap.lap)}</span>
+                    <span class="lap-total">${formatMs(lap.total)}</span>
+                </div>
+            `).join('');
+        }
+
+        function formatMs(ms) {
+            const totalSeconds = Math.floor(ms / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            const milliseconds = Math.floor((ms % 1000) / 10);
+            
+            if (hours > 0) {
+                return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(milliseconds).padStart(2, '0')}`;
+            }
+            return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(milliseconds).padStart(2, '0')}`;
+        }
+
+        // بازنشانی
+        function resetAll() {
+            pause();
+            elapsedTime = 0;
+            timerTotalMs = 0;
+            laps = [];
+            
+            displayTime(0);
+            display.classList.remove('warning', 'danger');
+            
+            if (currentTab === 'timer') {
+                updateTimerDisplay();
+            }
+            
+            renderLaps();
+            alarmSound.pause();
+            alarmSound.currentTime = 0;
+        }
+
+        // پریست‌ها
+        function setPreset(minutes, hours) {
+            switchTab('timer');
+            hoursInput.value = hours;
+            minutesInput.value = minutes;
+            secondsInput.value = 0;
+            updateTimerDisplay();
+        }
+
+        // کیبورد
+        document.addEventListener('keydown', function(e) {
+            if (e.key === ' ') {
+                e.preventDefault();
+                startStop();
+            } else if (e.key === 'r' || e.key === 'R') {
+                resetAll();
+            } else if (e.key === 'l' || e.key === 'L') {
+                recordLap();
+            }
+        });
+
+        // آپدیت نمایشگر هنگام تغییر input ها
+        hoursInput.addEventListener('input', updateTimerDisplay);
+        minutesInput.addEventListener('input', updateTimerDisplay);
+        secondsInput.addEventListener('input', updateTimerDisplay);
+
+        // شروع
+        switchTab('stopwatch');
+    </script>
+</body>
+</html>

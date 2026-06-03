@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>وردل فارسی - حدس کلمه</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh; display: flex; justify-content: center; align-items: center;
+            padding: 20px; color: white;
+        }
+        .game {
+            background: #1a1a1a; border-radius: 24px; padding: 2rem; width: 100%;
+            max-width: 450px; box-shadow: 0 20px 60px rgba(0,0,0,0.6); border: 2px solid #f39c12;
+            text-align: center;
+        }
+        .title { font-size: 2rem; color: #f39c12; margin-bottom: 0.3rem; }
+        .subtitle { color: #a2a8d3; margin-bottom: 1.5rem; font-size: 0.9rem; }
+        .grid {
+            display: flex; flex-direction: column; gap: 6px; margin-bottom: 1.5rem; align-items: center;
+        }
+        .row {
+            display: flex; gap: 6px;
+        }
+        .cell {
+            width: 55px; height: 55px; border: 2px solid #444; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; font-weight: bold; transition: all 0.4s;
+            text-transform: uppercase; background: #0d0d1a;
+        }
+        .cell.filled { border-color: #666; animation: pop 0.2s ease; }
+        .cell.correct { background: #4ecca3; border-color: #4ecca3; color: #1a1a1a; transform: rotateX(360deg); }
+        .cell.wrong-place { background: #f39c12; border-color: #f39c12; color: #1a1a1a; transform: rotateX(360deg); }
+        .cell.not-in-word { background: #333; border-color: #333; color: #888; }
+        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+        .keyboard {
+            display: flex; flex-direction: column; gap: 6px; align-items: center;
+        }
+        .key-row { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
+        .key {
+            background: #2a2a2a; border: 1px solid #444; color: white; padding: 12px 8px;
+            border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: bold;
+            min-width: 35px; text-align: center; transition: 0.2s; user-select: none;
+            font-family: inherit;
+        }
+        .key:hover { background: #444; }
+        .key.wide { min-width: 55px; font-size: 0.8rem; }
+        .key.correct-key { background: #4ecca3; color: #1a1a1a; border-color: #4ecca3; }
+        .key.wrong-place-key { background: #f39c12; color: #1a1a1a; border-color: #f39c12; }
+        .key.not-in-word-key { background: #333; color: #666; border-color: #333; }
+        .message {
+            min-height: 30px; margin: 0.8rem 0; font-size: 1rem; font-weight: bold;
+        }
+        .message.win { color: #4ecca3; }
+        .message.lose { color: #e94560; }
+        .new-game-btn {
+            background: #f39c12; color: #1a1a1a; border: none; padding: 10px 25px;
+            border-radius: 10px; font-weight: bold; cursor: pointer; font-family: inherit;
+            font-size: 1rem; margin-top: 0.5rem; transition: 0.3s;
+        }
+        .new-game-btn:hover { background: #e67e22; }
+    </style>
+</head>
+<body>
+    <div class="game">
+        <div class="title">🎮 وردل فارسی</div>
+        <div class="subtitle">کلمه ۵ حرفی را در ۶ تلاش حدس بزنید</div>
+
+        <!-- گرید -->
+        <div class="grid" id="grid"></div>
+
+        <!-- پیام -->
+        <div class="message" id="message"></div>
+
+        <!-- کیبورد -->
+        <div class="keyboard" id="keyboard"></div>
+
+        <!-- دکمه بازی جدید -->
+        <button class="new-game-btn" onclick="newGame()">🔄 بازی جدید</button>
+    </div>
+
+    <script>
+        const WORDS = [
+            'سلامت', 'آسمان', 'باران', 'پاییز', 'تاریخ', 'ثروتم', 'جمشید', 'چراغی',
+            'حافظه', 'خورشید', 'دریافت', 'ذهنیت', 'راهنم', 'زیبایی', 'ژاپنی',
+            'سعادت', 'شجاعت', 'صمیمی', 'ضعیفم', 'طبیعت', 'ظاهری', 'عرفان',
+            'غریبه', 'فرهنگ', 'قدرتم', 'کامپیو', 'گرمای', 'لطیفه', 'مدرسه',
+            'نرمال', 'وحشتک', 'هوایی', 'یادگیر'
+        ];
+
+        const KEYBOARD_ROWS = [
+            ['ض', 'ص', 'ث', 'ق', 'ف', 'غ', 'ع', 'ه', 'خ', 'ح', 'ج', 'چ'],
+            ['ش', 'س', 'ی', 'ب', 'ل', 'ا', 'ت', 'ن', 'م', 'ک', 'گ'],
+            ['پاک', 'ظ', 'ط', 'ز', 'ر', 'ذ', 'د', 'ئ', 'و', '⌫']
+        ];
+
+        let targetWord = '';
+        let currentRow = 0;
+        let currentCol = 0;
+        let gameOver = false;
+        const MAX_ROWS = 6;
+        const WORD_LENGTH = 5;
+        let keyStates = {};
+
+        function newGame() {
+            targetWord = WORDS[Math.floor(Math.random() * WORDS.length)];
+            currentRow = 0;
+            currentCol = 0;
+            gameOver = false;
+            keyStates = {};
+            
+            document.getElementById('message').textContent = '';
+            document.getElementById('message').className = 'message';
+            
+            createGrid();
+            createKeyboard();
+        }
+
+        function createGrid() {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+            
+            for (let i = 0; i < MAX_ROWS; i++) {
+                const row = document.createElement('div');
+                row.className = 'row';
+                for (let j = 0; j < WORD_LENGTH; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.id = `cell-${i}-${j}`;
+                    row.appendChild(cell);
+                }
+                grid.appendChild(row);
+            }
+        }
+
+        function createKeyboard() {
+            const keyboard = document.getElementById('keyboard');
+            keyboard.innerHTML = '';
+
+            KEYBOARD_ROWS.forEach((row, rowIndex) => {
+                const keyRow = document.createElement('div');
+                keyRow.className = 'key-row';
+
+                row.forEach(key => {
+                    const keyBtn = document.createElement('div');
+                    keyBtn.className = 'key';
+                    if (key === 'پاک' || key === '⌫') {
+                        keyBtn.classList.add('wide');
+                        keyBtn.textContent = '⌫';
+                        keyBtn.onclick = () => handleBackspace();
+                    } else {
+                        keyBtn.textContent = key;
+                        keyBtn.onclick = () => handleKeyPress(key);
+                    }
+                    keyBtn.id = `key-${key}`;
+                    keyRow.appendChild(keyBtn);
+                });
+
+                if (rowIndex === 2) {
+                    const enterBtn = document.createElement('div');
+                    enterBtn.className = 'key wide';
+                    enterBtn.textContent = '↵';
+                    enterBtn.onclick = () => handleEnter();
+                    keyRow.insertBefore(enterBtn, keyRow.firstChild);
+                }
+
+                keyboard.appendChild(keyRow);
+            });
+        }
+
+        function handleKeyPress(key) {
+            if (gameOver) return;
+            if (currentCol >= WORD_LENGTH) return;
+
+            const cell = document.getElementById(`cell-${currentRow}-${currentCol}`);
+            if (cell) {
+                cell.textContent = key;
+                cell.classList.add('filled');
+                currentCol++;
+            }
+        }
+
+        function handleBackspace() {
+            if (gameOver) return;
+            if (currentCol <= 0) return;
+
+            currentCol--;
+            const cell = document.getElementById(`cell-${currentRow}-${currentCol}`);
+            if (cell) {
+                cell.textContent = '';
+                cell.classList.remove('filled');
+            }
+        }
+
+        function handleEnter() {
+            if (gameOver) return;
+            if (currentCol < WORD_LENGTH) {
+                showMessage('کلمه باید ۵ حرف باشد!', '');
+                return;
+            }
+
+            // خواندن کلمه وارد شده
+            let guess = '';
+            for (let i = 0; i < WORD_LENGTH; i++) {
+                const cell = document.getElementById(`cell-${currentRow}-${i}`);
+                guess += cell.textContent;
+            }
+
+            // بررسی کلمه
+            checkWord(guess);
+        }
+
+        function checkWord(guess) {
+            let correctCount = 0;
+            const targetChars = targetWord.split('');
+            const guessChars = guess.split('');
+            const used = new Array(WORD_LENGTH).fill(false);
+
+            // پاس اول: حروف درست در جای درست
+            for (let i = 0; i < WORD_LENGTH; i++) {
+                const cell = document.getElementById(`cell-${currentRow}-${i}`);
+                if (guessChars[i] === targetChars[i]) {
+                    cell.classList.add('correct');
+                    updateKeyState(guessChars[i], 'correct-key');
+                    used[i] = true;
+                    correctCount++;
+                }
+            }
+
+            // پاس دوم: حروف درست در جای اشتباه
+            for (let i = 0; i < WORD_LENGTH; i++) {
+                const cell = document.getElementById(`cell-${currentRow}-${i}`);
+                if (cell.classList.contains('correct')) continue;
+
+                let found = false;
+                for (let j = 0; j < WORD_LENGTH; j++) {
+                    if (!used[j] && guessChars[i] === targetChars[j]) {
+                        used[j] = true;
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (found) {
+                    cell.classList.add('wrong-place');
+                    updateKeyState(guessChars[i], 'wrong-place-key');
+                } else {
+                    cell.classList.add('not-in-word');
+                    updateKeyState(guessChars[i], 'not-in-word-key');
+                }
+            }
+
+            // بررسی برد
+            if (correctCount === WORD_LENGTH) {
+                gameOver = true;
+                showMessage('🎉 آفرین! برنده شدی! 🎉', 'win');
+                return;
+            }
+
+            // بررسی باخت
+            currentRow++;
+            currentCol = 0;
+
+            if (currentRow >= MAX_ROWS) {
+                gameOver = true;
+                showMessage(`😢 باختی! کلمه: ${targetWord}`, 'lose');
+            }
+        }
+
+        function updateKeyState(key, stateClass) {
+            const keyEl = document.getElementById(`key-${key}`);
+            if (!keyEl) return;
+
+            // اولویت: correct > wrong-place > not-in-word
+            if (keyStates[key] === 'correct-key') return;
+            if (keyStates[key] === 'wrong-place-key' && stateClass === 'not-in-word-key') return;
+
+            keyEl.className = 'key ' + stateClass;
+            keyStates[key] = stateClass;
+        }
+
+        function showMessage(text, type) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = 'message ' + type;
+        }
+
+        // کیبورد فیزیکی
+        document.addEventListener('keydown', function(e) {
+            if (gameOver) return;
+
+            const key = e.key;
+            
+            if (key === 'Enter') {
+                e.preventDefault();
+                handleEnter();
+            } else if (key === 'Backspace') {
+                e.preventDefault();
+                handleBackspace();
+            } else if (/^[آ-ی]$/.test(key) || KEYBOARD_ROWS.flat().includes(key)) {
+                handleKeyPress(key);
+            }
+        });
+
+        // شروع بازی
+        newGame();
+    </script>
+</body>
+</html>

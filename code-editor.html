@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ویرایشگر کد آنلاین</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #0a0a0a; min-height: 100vh; padding: 15px; color: white;
+        }
+        .header {
+            text-align: center; margin-bottom: 1rem;
+        }
+        .header h1 { color: #e94560; font-size: 1.5rem; }
+        .editor-container {
+            display: flex; gap: 10px; height: 45vh; margin-bottom: 10px; flex-wrap: wrap;
+        }
+        .editor-box {
+            flex: 1; min-width: 250px; display: flex; flex-direction: column;
+            background: #1a1a1a; border-radius: 12px; overflow: hidden; border: 1px solid #333;
+        }
+        .editor-box .label {
+            background: #111; padding: 8px 15px; font-size: 0.85rem; font-weight: bold;
+            color: #e94560; display: flex; align-items: center; gap: 8px;
+        }
+        .editor-box textarea {
+            flex: 1; background: #0d0d1a; border: none; padding: 12px; color: #4ecca3;
+            font-family: 'Courier New', monospace; font-size: 0.9rem; resize: none;
+            line-height: 1.5; tab-size: 2;
+        }
+        .editor-box textarea:focus { outline: none; }
+        .preview-area {
+            background: white; border-radius: 12px; height: 35vh; border: 1px solid #333;
+            overflow: hidden;
+        }
+        .preview-area iframe {
+            width: 100%; height: 100%; border: none; background: white;
+        }
+        .toolbar {
+            display: flex; gap: 8px; justify-content: center; margin: 8px 0; flex-wrap: wrap;
+        }
+        .toolbar button {
+            padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;
+            font-weight: bold; font-family: inherit; font-size: 0.9rem; transition: 0.3s;
+        }
+        .run-btn { background: #4ecca3; color: #1a1a1a; }
+        .run-btn:hover { background: #3baa8a; }
+        .clear-btn { background: #e94560; color: white; }
+        .clear-btn:hover { background: #c73652; }
+        .copy-btn { background: #533483; color: white; }
+        .copy-btn:hover { background: #6c3fa0; }
+        .template-btn { background: #0f3460; color: white; }
+        .template-btn:hover { background: #3498db; }
+        @media (max-width: 700px) {
+            .editor-container { height: auto; }
+            .editor-box { min-height: 150px; }
+            .preview-area { height: 250px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>💻 ویرایشگر کد آنلاین</h1>
+    </div>
+
+    <div class="editor-container">
+        <div class="editor-box">
+            <div class="label">📄 HTML</div>
+            <textarea id="htmlCode" placeholder="<div>سلام دنیا!</div>"><!-- HTML -->\n<div style="text-align:center;padding:20px;">\n  <h1>سلام! 👋</h1>\n  <p>کد HTML خود را اینجا بنویسید</p>\n</div></textarea>
+        </div>
+        <div class="editor-box">
+            <div class="label">🎨 CSS</div>
+            <textarea id="cssCode" placeholder="h1 { color: red; }">/* CSS */\nbody { font-family: Tahoma; background: #f0f0f0; }\nh1 { color: #e94560; }</textarea>
+        </div>
+        <div class="editor-box">
+            <div class="label">⚡ JavaScript</div>
+            <textarea id="jsCode" placeholder="console.log('Hello!');">// JavaScript\nconsole.log('خوش آمدید!');\ndocument.querySelector('h1').onclick = function() {\n  alert('سلام! 🎉');\n};</textarea>
+        </div>
+    </div>
+
+    <div class="toolbar">
+        <button class="run-btn" onclick="runCode()">▶️ اجرا</button>
+        <button class="clear-btn" onclick="clearAll()">🗑️ پاک کردن</button>
+        <button class="copy-btn" onclick="copyCode()">📋 کپی HTML</button>
+        <button class="template-btn" onclick="loadTemplate('hello')">👋 سلام</button>
+        <button class="template-btn" onclick="loadTemplate('form')">📝 فرم</button>
+        <button class="template-btn" onclick="loadTemplate('game')">🎮 شمارنده</button>
+    </div>
+
+    <div class="preview-area">
+        <iframe id="previewFrame"></iframe>
+    </div>
+
+    <script>
+        const htmlCode = document.getElementById('htmlCode');
+        const cssCode = document.getElementById('cssCode');
+        const jsCode = document.getElementById('jsCode');
+        const previewFrame = document.getElementById('previewFrame');
+
+        function runCode() {
+            const html = htmlCode.value;
+            const css = cssCode.value;
+            const js = jsCode.value;
+
+            const fullCode = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <style>${css}</style>
+                </head>
+                <body>
+                    ${html}
+                    <script>${js}<\/script>
+                </body>
+                </html>
+            `;
+
+            const blob = new Blob([fullCode], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            previewFrame.src = url;
+        }
+
+        function clearAll() {
+            htmlCode.value = '';
+            cssCode.value = '';
+            jsCode.value = '';
+            runCode();
+        }
+
+        function copyCode() {
+            navigator.clipboard.writeText(htmlCode.value).then(() => {
+                alert('✅ کد HTML کپی شد!');
+            });
+        }
+
+        function loadTemplate(type) {
+            if (type === 'hello') {
+                htmlCode.value = '<div style="text-align:center;padding:50px;">\n  <h1 id="title">سلام دنیا! 🌍</h1>\n  <button onclick="changeColor()">تغییر رنگ</button>\n</div>';
+                cssCode.value = 'body { font-family: Tahoma; background: #1a1a2e; color: white; min-height: 100vh; display: flex; align-items: center; justify-content: center; }\nh1 { font-size: 3rem; transition: 0.5s; }\nbutton { padding: 10px 20px; font-size: 1rem; cursor: pointer; border-radius: 8px; border: none; }';
+                jsCode.value = 'function changeColor() {\n  const colors = ["#e94560", "#4ecca3", "#f39c12", "#3498db", "#9b59b6"];\n  const random = colors[Math.floor(Math.random() * colors.length)];\n  document.getElementById("title").style.color = random;\n}';
+            } else if (type === 'form') {
+                htmlCode.value = '<div style="max-width:400px;margin:50px auto;padding:20px;background:#fff;border-radius:12px;">\n  <h2>فرم تماس</h2>\n  <input type="text" id="name" placeholder="نام" style="width:100%;padding:10px;margin:8px 0;border-radius:6px;border:1px solid #ddd;">\n  <input type="email" id="email" placeholder="ایمیل" style="width:100%;padding:10px;margin:8px 0;border-radius:6px;border:1px solid #ddd;">\n  <button onclick="submitForm()" style="width:100%;padding:12px;background:#e94560;color:white;border:none;border-radius:6px;cursor:pointer;">ارسال</button>\n  <p id="result"></p>\n</div>';
+                cssCode.value = 'body { font-family: Tahoma; background: #f0f0f0; }';
+                jsCode.value = 'function submitForm() {\n  const name = document.getElementById("name").value;\n  const email = document.getElementById("email").value;\n  if(name && email) {\n    document.getElementById("result").innerHTML = "✅ ممنون " + name + "!";\n    document.getElementById("result").style.color = "green";\n  } else {\n    document.getElementById("result").innerHTML = "❌ لطفاً همه فیلدها را پر کنید.";\n    document.getElementById("result").style.color = "red";\n  }\n}';
+            } else if (type === 'game') {
+                htmlCode.value = '<div style="text-align:center;padding:50px;">\n  <h1>شمارنده</h1>\n  <h2 id="counter" style="font-size:5rem;">0</h2>\n  <button onclick="change(-1)" style="padding:15px 25px;font-size:1.5rem;margin:5px;">➖</button>\n  <button onclick="change(1)" style="padding:15px 25px;font-size:1.5rem;margin:5px;">➕</button>\n  <button onclick="reset()" style="padding:15px 25px;font-size:1.5rem;margin:5px;">🔄</button>\n</div>';
+                cssCode.value = 'body { font-family: Tahoma; background: #1a1a2e; color: white; min-height: 100vh; display: flex; align-items: center; justify-content: center; }\nbutton { border: none; border-radius: 10px; cursor: pointer; background: #e94560; color: white; transition: 0.2s; }\nbutton:hover { transform: scale(1.1); }';
+                jsCode.value = 'let count = 0;\nfunction change(n) {\n  count += n;\n  document.getElementById("counter").textContent = count;\n}\nfunction reset() {\n  count = 0;\n  document.getElementById("counter").textContent = count;\n}';
+            }
+            runCode();
+        }
+
+        // اجرای اولیه
+        runCode();
+
+        // Ctrl+Enter برای اجرا
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                runCode();
+            }
+        });
+    </script>
+</body>
+</html>

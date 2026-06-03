@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوم نقاشی</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #1a1a2e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 15px;
+            color: white;
+        }
+        .app {
+            background: #1a1a1a;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.6);
+            border: 2px solid #333;
+            width: 100%;
+            max-width: 950px;
+        }
+        .toolbar {
+            background: #111;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #333;
+        }
+        .tool-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #1a1a1a;
+            padding: 6px 10px;
+            border-radius: 10px;
+            border: 1px solid #333;
+        }
+        button {
+            background: #2a2a2a;
+            color: white;
+            border: 1px solid #444;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.25s;
+            font-family: inherit;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        button:hover {
+            background: #3a3a3a;
+            border-color: #e94560;
+        }
+        button.active {
+            background: #e94560;
+            border-color: #e94560;
+            box-shadow: 0 0 10px rgba(233,69,96,0.4);
+        }
+        button.tool-btn {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        input[type="color"] {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #444;
+            border-radius: 8px;
+            cursor: pointer;
+            background: transparent;
+            padding: 2px;
+        }
+        input[type="color"]:hover {
+            border-color: #e94560;
+        }
+        input[type="range"] {
+            width: 80px;
+            accent-color: #e94560;
+            cursor: pointer;
+        }
+        .size-val {
+            color: #e94560;
+            font-weight: bold;
+            min-width: 25px;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+        .canvas-area {
+            position: relative;
+            background: #0a0a0a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 450px;
+            overflow: hidden;
+            cursor: crosshair;
+        }
+        canvas {
+            display: block;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        .status-bar {
+            background: #111;
+            padding: 8px 15px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #888;
+            border-top: 1px solid #333;
+            direction: ltr;
+        }
+        @media (max-width: 700px) {
+            .toolbar {
+                gap: 6px;
+                padding: 8px;
+            }
+            button {
+                padding: 6px 8px;
+                font-size: 0.8rem;
+            }
+            .canvas-area {
+                min-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- نوار ابزار -->
+        <div class="toolbar">
+            <!-- ابزارها -->
+            <div class="tool-group">
+                <button class="tool-btn active" data-tool="pen" onclick="setTool('pen')" title="قلم">✏️</button>
+                <button class="tool-btn" data-tool="eraser" onclick="setTool('eraser')" title="پاک‌کن">🧹</button>
+                <button class="tool-btn" data-tool="bucket" onclick="setTool('bucket')" title="سطل رنگ">🪣</button>
+                <button class="tool-btn" data-tool="line" onclick="setTool('line')" title="خط">📏</button>
+                <button class="tool-btn" data-tool="rect" onclick="setTool('rect')" title="مستطیل">⬜</button>
+                <button class="tool-btn" data-tool="circle" onclick="setTool('circle')" title="دایره">⭕</button>
+            </div>
+
+            <!-- رنگ -->
+            <div class="tool-group">
+                <input type="color" id="colorPicker" value="#e94560" onchange="changeColor(this.value)" title="رنگ قلم">
+                <button onclick="setColor('#000000')" style="background:#000;width:25px;height:25px;padding:0;border-radius:50%;" title="مشکی"></button>
+                <button onclick="setColor('#ffffff')" style="background:#fff;width:25px;height:25px;padding:0;border-radius:50%;" title="سفید"></button>
+                <button onclick="setColor('#e94560')" style="background:#e94560;width:25px;height:25px;padding:0;border-radius:50%;" title="قرمز"></button>
+                <button onclick="setColor('#4ecca3')" style="background:#4ecca3;width:25px;height:25px;padding:0;border-radius:50%;" title="سبز"></button>
+                <button onclick="setColor('#3498db')" style="background:#3498db;width:25px;height:25px;padding:0;border-radius:50%;" title="آبی"></button>
+                <button onclick="setColor('#f39c12')" style="background:#f39c12;width:25px;height:25px;padding:0;border-radius:50%;" title="نارنجی"></button>
+                <button onclick="setColor('#9b59b6')" style="background:#9b59b6;width:25px;height:25px;padding:0;border-radius:50%;" title="بنفش"></button>
+            </div>
+
+            <!-- اندازه -->
+            <div class="tool-group">
+                <span style="font-size:0.8rem;">اندازه:</span>
+                <input type="range" id="sizeSlider" min="1" max="50" value="5" oninput="changeSize(this.value)">
+                <span class="size-val" id="sizeVal">5</span>
+            </div>
+
+            <!-- عملیات -->
+            <div class="tool-group">
+                <button onclick="undo()" title="برگشت">↩️</button>
+                <button onclick="clearCanvas()" title="پاک کردن همه">🗑️</button>
+                <button onclick="downloadCanvas()" title="دانلود">💾</button>
+            </div>
+        </div>
+
+        <!-- بوم -->
+        <div class="canvas-area" id="canvasArea">
+            <canvas id="drawCanvas"></canvas>
+        </div>
+
+        <!-- نوار وضعیت -->
+        <div class="status-bar">
+            <span id="toolStatus">✏️ قلم | اندازه: 5</span>
+            <span id="posStatus">X: 0, Y: 0</span>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('drawCanvas');
+        const ctx = canvas.getContext('2d');
+        const canvasArea = document.getElementById('canvasArea');
+        const colorPicker = document.getElementById('colorPicker');
+        const sizeSlider = document.getElementById('sizeSlider');
+        const sizeVal = document.getElementById('sizeVal');
+        const toolStatus = document.getElementById('toolStatus');
+        const posStatus = document.getElementById('posStatus');
+
+        // تنظیمات اولیه
+        canvas.width = 800;
+        canvas.height = 500;
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        let isDrawing = false;
+        let currentTool = 'pen';
+        let currentColor = '#e94560';
+        let currentSize = 5;
+        let startX, startY;
+        let undoStack = [];
+        let redoStack = [];
+        const maxUndo = 30;
+
+        // ذخیره وضعیت اولیه
+        saveState();
+
+        // تنظیم اندازه بوم نسبت به صفحه
+        function resizeCanvas() {
+            const maxWidth = canvasArea.clientWidth - 20;
+            const maxHeight = Math.min(window.innerHeight * 0.6, 500);
+            const scale = Math.min(maxWidth / 800, maxHeight / 500);
+            canvas.style.width = (800 * scale) + 'px';
+            canvas.style.height = (500 * scale) + 'px';
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // ذخیره وضعیت برای undo
+        function saveState() {
+            undoStack.push(canvas.toDataURL());
+            if (undoStack.length > maxUndo) undoStack.shift();
+            redoStack = [];
+        }
+
+        // برگشت (undo)
+        function undo() {
+            if (undoStack.length <= 1) return;
+
+            redoStack.push(undoStack.pop());
+            const imgData = undoStack[undoStack.length - 1];
+            
+            const img = new Image();
+            img.onload = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+            };
+            img.src = imgData;
+        }
+
+        // انتخاب ابزار
+        function setTool(tool) {
+            currentTool = tool;
+            document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`[data-tool="${tool}"]`).classList.add('active');
+            
+            const toolNames = {
+                pen: '✏️ قلم',
+                eraser: '🧹 پاک‌کن',
+                bucket: '🪣 سطل رنگ',
+                line: '📏 خط',
+                rect: '⬜ مستطیل',
+                circle: '⭕ دایره'
+            };
+            toolStatus.textContent = `${toolNames[tool]} | اندازه: ${currentSize}`;
+        }
+
+        function changeColor(color) {
+            currentColor = color;
+            colorPicker.value = color;
+        }
+
+        function setColor(color) {
+            changeColor(color);
+        }
+
+        function changeSize(size) {
+            currentSize = parseInt(size);
+            sizeVal.textContent = currentSize;
+            toolStatus.textContent = toolStatus.textContent.replace(/اندازه: \d+/, `اندازه: ${currentSize}`);
+        }
+
+        // رویدادهای موس
+        canvas.addEventListener('mousedown', (e) => {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            startX = (e.clientX - rect.left) * scaleX;
+            startY = (e.clientY - rect.top) * scaleY;
+
+            if (currentTool === 'bucket') {
+                floodFill(Math.floor(startX), Math.floor(startY), currentColor);
+                saveState();
+                isDrawing = false;
+                return;
+            }
+
+            if (currentTool === 'pen' || currentTool === 'eraser') {
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const currentX = (e.clientX - rect.left) * scaleX;
+            const currentY = (e.clientY - rect.top) * scaleY;
+
+            posStatus.textContent = `X: ${Math.round(currentX)}, Y: ${Math.round(currentY)}`;
+
+            if (!isDrawing) return;
+
+            if (currentTool === 'pen') {
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.strokeStyle = currentColor;
+                ctx.lineWidth = currentSize;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.lineTo(currentX, currentY);
+                ctx.stroke();
+            } else if (currentTool === 'eraser') {
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.strokeStyle = 'rgba(0,0,0,1)';
+                ctx.lineWidth = currentSize * 2;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.lineTo(currentX, currentY);
+                ctx.stroke();
+                ctx.globalCompositeOperation = 'source-over';
+            }
+        });
+
+        canvas.addEventListener('mouseup', (e) => {
+            if (!isDrawing) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const endX = (e.clientX - rect.left) * scaleX;
+            const endY = (e.clientY - rect.top) * scaleY;
+
+            if (currentTool === 'line') {
+                drawLine(startX, startY, endX, endY);
+            } else if (currentTool === 'rect') {
+                drawRect(startX, startY, endX, endY);
+            } else if (currentTool === 'circle') {
+                drawCircle(startX, startY, endX, endY);
+            }
+
+            if (currentTool !== 'bucket') {
+                saveState();
+            }
+            
+            isDrawing = false;
+            ctx.beginPath();
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            if (isDrawing) {
+                saveState();
+                isDrawing = false;
+            }
+        });
+
+        // توابع رسم اشکال
+        function drawLine(x1, y1, x2, y2) {
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.strokeStyle = currentColor;
+            ctx.lineWidth = currentSize;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+        }
+
+        function drawRect(x1, y1, x2, y2) {
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillStyle = currentColor;
+            ctx.strokeStyle = currentColor;
+            ctx.lineWidth = currentSize;
+            const width = x2 - x1;
+            const height = y2 - y1;
+            ctx.beginPath();
+            ctx.rect(x1, y1, width, height);
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        function drawCircle(x1, y1, x2, y2) {
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillStyle = currentColor;
+            ctx.strokeStyle = currentColor;
+            ctx.lineWidth = currentSize;
+            const radius = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            ctx.beginPath();
+            ctx.arc(x1, y1, radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        // سطل رنگ
+        function floodFill(x, y, fillColor) {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            const targetColor = getPixelColor(imageData, x, y);
+            
+            // تبدیل رنگ‌ها برای مقایسه
+            const fillRGB = hexToRgb(fillColor);
+            
+            if (colorsMatch(targetColor, fillRGB)) return;
+
+            const stack = [[x, y]];
+            const visited = new Set();
+            
+            while (stack.length > 0) {
+                const [cx, cy] = stack.pop();
+                const key = `${cx},${cy}`;
+                
+                if (cx < 0 || cy < 0 || cx >= canvas.width || cy >= canvas.height) continue;
+                if (visited.has(key)) continue;
+                
+                const currentColor = getPixelColor(imageData, cx, cy);
+                if (!colorsMatch(currentColor, targetColor)) continue;
+                
+                visited.add(key);
+                
+                const index = (cy * canvas.width + cx) * 4;
+                data[index] = fillRGB.r;
+                data[index + 1] = fillRGB.g;
+                data[index + 2] = fillRGB.b;
+                data[index + 3] = 255;
+                
+                stack.push([cx + 1, cy]);
+                stack.push([cx - 1, cy]);
+                stack.push([cx, cy + 1]);
+                stack.push([cx, cy - 1]);
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        function getPixelColor(imageData, x, y) {
+            const index = (y * imageData.width + x) * 4;
+            return {
+                r: imageData.data[index],
+                g: imageData.data[index + 1],
+                b: imageData.data[index + 2],
+                a: imageData.data[index + 3]
+            };
+        }
+
+        function colorsMatch(c1, c2) {
+            return Math.abs(c1.r - c2.r) < 5 &&
+                   Math.abs(c1.g - c2.g) < 5 &&
+                   Math.abs(c1.b - c2.b) < 5;
+        }
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : { r: 0, g: 0, b: 0 };
+        }
+
+        // پاک کردن
+        function clearCanvas() {
+            if (confirm('آیا مطمئن هستید؟ همه نقاشی‌ها پاک می‌شود.')) {
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                saveState();
+            }
+        }
+
+        // دانلود
+        function downloadCanvas() {
+            const link = document.createElement('a');
+            link.download = 'my-drawing.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // کیبورد
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'z') {
+                e.preventDefault();
+                undo();
+            }
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                downloadCanvas();
+            }
+        });
+    </script>
+</body>
+</html>

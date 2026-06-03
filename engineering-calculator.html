@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ماشین حساب مهندسی</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: white;
+        }
+        .calculator {
+            background: #1a1a1a;
+            border-radius: 24px;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            border: 2px solid #e94560;
+        }
+        .display {
+            background: #0a0a0a;
+            border: 2px solid #333;
+            border-radius: 16px;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 1rem;
+            text-align: left;
+            direction: ltr;
+            min-height: 90px;
+        }
+        .expression {
+            font-size: 1rem;
+            color: #888;
+            min-height: 24px;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+        }
+        .result {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #4ecca3;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            margin-top: 5px;
+        }
+        .result.error {
+            color: #e94560;
+            font-size: 1.2rem;
+        }
+        .mode-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 1rem;
+        }
+        .mode-btn {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #533483;
+            background: #1a1a2e;
+            color: #a2a8d3;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: bold;
+            transition: 0.3s;
+            font-family: inherit;
+        }
+        .mode-btn.active {
+            background: #e94560;
+            color: white;
+            border-color: #e94560;
+        }
+        .mode-btn:hover:not(.active) {
+            background: #2a2a4e;
+        }
+        .btn-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+        button {
+            padding: 14px 8px;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            color: white;
+            background: #2a2a2a;
+            border: 1px solid #444;
+        }
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(233,69,96,0.3);
+        }
+        button:active {
+            transform: scale(0.95);
+        }
+        .num-btn {
+            background: #1a1a2e;
+            border-color: #533483;
+            font-size: 1.1rem;
+        }
+        .num-btn:hover {
+            background: #2a2a4e;
+            border-color: #e94560;
+        }
+        .op-btn {
+            background: #0f3460;
+            border-color: #3498db;
+            color: #3498db;
+        }
+        .op-btn:hover {
+            background: #3498db;
+            color: white;
+        }
+        .func-btn {
+            background: #1a1a2e;
+            border-color: #533483;
+            color: #a2a8d3;
+            font-size: 0.8rem;
+        }
+        .func-btn:hover {
+            background: #533483;
+            color: white;
+        }
+        .eq-btn {
+            background: #4ecca3;
+            color: #1a1a1a;
+            border-color: #4ecca3;
+            font-size: 1.3rem;
+        }
+        .eq-btn:hover {
+            background: #3baa8a;
+        }
+        .clear-btn {
+            background: #e94560;
+            border-color: #e94560;
+        }
+        .clear-btn:hover {
+            background: #c73652;
+        }
+        .history {
+            margin-top: 1rem;
+            max-height: 120px;
+            overflow-y: auto;
+            font-size: 0.8rem;
+            direction: ltr;
+            text-align: left;
+        }
+        .history-item {
+            background: #0d0d1a;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            color: #888;
+            transition: 0.2s;
+            font-family: 'Courier New', monospace;
+        }
+        .history-item:hover {
+            background: #1a1a2e;
+            color: #4ecca3;
+        }
+        .history-item .hist-expr {
+            flex: 1;
+        }
+        .history-item .hist-res {
+            color: #4ecca3;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <!-- نمایشگر -->
+        <div class="display">
+            <div class="expression" id="expression"></div>
+            <div class="result" id="result">0</div>
+        </div>
+
+        <!-- تب‌ها -->
+        <div class="mode-tabs">
+            <button class="mode-btn active" onclick="switchMode('basic')">پایه</button>
+            <button class="mode-btn" onclick="switchMode('scientific')">مهندسی</button>
+        </div>
+
+        <!-- دکمه‌ها -->
+        <div class="btn-grid" id="btnGrid">
+            <!-- دکمه‌ها با جاوااسکریپت ساخته می‌شن -->
+        </div>
+
+        <!-- تاریخچه -->
+        <div class="history" id="history"></div>
+    </div>
+
+    <script>
+        let currentMode = 'basic';
+        let currentInput = '';
+        let lastResult = null;
+        let history = [];
+        let justEvaluated = false;
+
+        const expressionEl = document.getElementById('expression');
+        const resultEl = document.getElementById('result');
+        const btnGrid = document.getElementById('btnGrid');
+        const historyEl = document.getElementById('history');
+
+        // دکمه‌های هر حالت
+        const basicButtons = [
+            ['C', '⌫', '%', '/', '×'],
+            ['7', '8', '9', '*', '÷'],
+            ['4', '5', '6', '-', 'π'],
+            ['1', '2', '3', '+', 'e'],
+            ['±', '0', '.', '=', '^']
+        ];
+
+        const scientificButtons = [
+            ['C', '⌫', '(', ')', '×'],
+            ['sin', 'cos', 'tan', '√', '÷'],
+            ['7', '8', '9', 'log', 'ln'],
+            ['4', '5', '6', 'x²', 'xⁿ'],
+            ['1', '2', '3', 'π', 'e'],
+            ['±', '0', '.', '=', '10ⁿ']
+        ];
+
+        // حالت
+        function switchMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`[onclick="switchMode('${mode}')"]`).classList.add('active');
+            renderButtons();
+        }
+
+        // رسم دکمه‌ها
+        function renderButtons() {
+            const buttons = currentMode === 'basic' ? basicButtons : scientificButtons;
+            
+            btnGrid.innerHTML = buttons.map(row => 
+                row.map(btn => {
+                    let btnClass = 'num-btn';
+                    if (btn === '=') btnClass = 'eq-btn';
+                    else if (btn === 'C') btnClass = 'clear-btn';
+                    else if (['+', '-', '×', '÷', '*', '/', '%', '^'].includes(btn)) btnClass = 'op-btn';
+                    else if (['sin', 'cos', 'tan', 'log', 'ln', '√', 'x²', 'xⁿ', '10ⁿ', '±', 'π', 'e', '(', ')'].includes(btn)) btnClass = 'func-btn';
+                    
+                    return `<button class="${btnClass}" onclick="handleButton('${btn}')">${btn}</button>`;
+                }).join('')
+            ).join('');
+        }
+
+        // مدیریت کلیک
+        function handleButton(btn) {
+            switch(btn) {
+                case 'C':
+                    clearAll();
+                    break;
+                case '⌫':
+                    backspace();
+                    break;
+                case '=':
+                    evaluate();
+                    break;
+                case 'sin':
+                    insertFunc('sin(');
+                    break;
+                case 'cos':
+                    insertFunc('cos(');
+                    break;
+                case 'tan':
+                    insertFunc('tan(');
+                    break;
+                case 'log':
+                    insertFunc('log(');
+                    break;
+                case 'ln':
+                    insertFunc('ln(');
+                    break;
+                case '√':
+                    insertFunc('sqrt(');
+                    break;
+                case 'x²':
+                    insertFunc('sqr(');
+                    break;
+                case 'xⁿ':
+                    appendToInput('^');
+                    break;
+                case '10ⁿ':
+                    appendToInput('10^');
+                    break;
+                case 'π':
+                    appendToInput('π');
+                    break;
+                case 'e':
+                    appendToInput('e');
+                    break;
+                case '±':
+                    toggleSign();
+                    break;
+                case '×':
+                    appendToInput('*');
+                    break;
+                case '÷':
+                    appendToInput('/');
+                    break;
+                default:
+                    appendToInput(btn);
+            }
+        }
+
+        function appendToInput(char) {
+            if (justEvaluated && /[0-9]/.test(char)) {
+                currentInput = '';
+                justEvaluated = false;
+            }
+            if (justEvaluated && ['+', '-', '*', '/', '^', '%'].includes(char)) {
+                currentInput = (lastResult !== null ? lastResult.toString() : '') + char;
+                justEvaluated = false;
+            } else {
+                currentInput += char;
+            }
+            justEvaluated = false;
+            updateDisplay();
+        }
+
+        function insertFunc(func) {
+            if (justEvaluated) {
+                currentInput = func;
+                justEvaluated = false;
+            } else {
+                currentInput += func;
+            }
+            updateDisplay();
+        }
+
+        function backspace() {
+            if (currentInput.length > 0) {
+                // حذف توابع با پرانتز
+                const funcs = ['sin(', 'cos(', 'tan(', 'log(', 'ln(', 'sqrt(', 'sqr('];
+                for (const func of funcs) {
+                    if (currentInput.endsWith(func)) {
+                        currentInput = currentInput.slice(0, -func.length);
+                        updateDisplay();
+                        return;
+                    }
+                }
+                currentInput = currentInput.slice(0, -1);
+            }
+            justEvaluated = false;
+            updateDisplay();
+        }
+
+        function toggleSign() {
+            if (justEvaluated || currentInput === '') return;
+            // پیدا کردن آخرین عدد و تغییر علامت
+            const match = currentInput.match(/(-?\d+\.?\d*)$/);
+            if (match) {
+                const num = match[0];
+                if (num.startsWith('-')) {
+                    currentInput = currentInput.slice(0, -num.length) + num.slice(1);
+                } else {
+                    currentInput = currentInput.slice(0, -num.length) + '(-' + num + ')';
+                }
+            }
+            updateDisplay();
+        }
+
+        function clearAll() {
+            currentInput = '';
+            lastResult = null;
+            justEvaluated = false;
+            expressionEl.textContent = '';
+            resultEl.textContent = '0';
+            resultEl.classList.remove('error');
+        }
+
+        // ارزیابی
+        function evaluate() {
+            if (!currentInput.trim()) return;
+
+            let expr = currentInput;
+            
+            try {
+                // جایگزینی ثابت‌ها
+                expr = expr.replace(/π/g, Math.PI);
+                expr = expr.replace(/e(?![xpln])/g, Math.E);
+                
+                // توابع ریاضی
+                expr = expr.replace(/sin\(/g, 'Math.sin(');
+                expr = expr.replace(/cos\(/g, 'Math.cos(');
+                expr = expr.replace(/tan\(/g, 'Math.tan(');
+                expr = expr.replace(/log\(/g, 'Math.log10(');
+                expr = expr.replace(/ln\(/g, 'Math.log(');
+                expr = expr.replace(/sqrt\(/g, 'Math.sqrt(');
+                expr = expr.replace(/sqr\(/g, 'Math.pow(');
+                
+                // توان
+                expr = expr.replace(/\^/g, '**');
+
+                // پرانتزهای بسته نشده
+                const openParens = (expr.match(/\(/g) || []).length;
+                const closeParens = (expr.match(/\)/g) || []).length;
+                for (let i = 0; i < openParens - closeParens; i++) {
+                    expr += ')';
+                }
+
+                const result = eval(expr);
+                
+                if (result === Infinity || result === -Infinity) {
+                    throw new Error('تقسیم بر صفر');
+                }
+                if (isNaN(result)) {
+                    throw new Error('محاسبه نامعتبر');
+                }
+
+                // نمایش
+                expressionEl.textContent = currentInput + ' =';
+                const formatted = Number.isInteger(result) ? result : parseFloat(result.toFixed(10));
+                resultEl.textContent = formatted;
+                resultEl.classList.remove('error');
+                
+                // ذخیره در تاریخچه
+                lastResult = formatted;
+                addHistory(currentInput, formatted);
+                
+                justEvaluated = true;
+                currentInput = formatted.toString();
+                
+            } catch (e) {
+                resultEl.textContent = 'خطا';
+                resultEl.classList.add('error');
+                expressionEl.textContent = currentInput;
+            }
+        }
+
+        function updateDisplay() {
+            expressionEl.textContent = currentInput || '';
+            if (!currentInput) {
+                resultEl.textContent = '0';
+            } else {
+                // پیش‌نمایش زنده (اختیاری)
+                try {
+                    let expr = currentInput
+                        .replace(/π/g, Math.PI)
+                        .replace(/e(?![xpln])/g, Math.E)
+                        .replace(/sin\(/g, 'Math.sin(')
+                        .replace(/cos\(/g, 'Math.cos(')
+                        .replace(/tan\(/g, 'Math.tan(')
+                        .replace(/log\(/g, 'Math.log10(')
+                        .replace(/ln\(/g, 'Math.log(')
+                        .replace(/sqrt\(/g, 'Math.sqrt(')
+                        .replace(/sqr\(/g, 'Math.pow(')
+                        .replace(/\^/g, '**');
+                    
+                    const openParens = (expr.match(/\(/g) || []).length;
+                    const closeParens = (expr.match(/\)/g) || []).length;
+                    for (let i = 0; i < openParens - closeParens; i++) expr += ')';
+                    
+                    const preview = eval(expr);
+                    if (preview !== undefined && !isNaN(preview) && isFinite(preview)) {
+                        const formatted = Number.isInteger(preview) ? preview : parseFloat(preview.toFixed(10));
+                        resultEl.textContent = formatted;
+                        resultEl.classList.remove('error');
+                    }
+                } catch (e) {
+                    // پیش‌نمایش در دسترس نیست
+                }
+            }
+        }
+
+        // تاریخچه
+        function addHistory(expr, result) {
+            history.unshift({ expr, result });
+            if (history.length > 10) history.pop();
+            renderHistory();
+        }
+
+        function renderHistory() {
+            historyEl.innerHTML = history.map((item, index) => `
+                <div class="history-item" onclick="loadHistory(${index})">
+                    <span class="hist-expr">${item.expr}</span>
+                    <span class="hist-res">= ${item.result}</span>
+                </div>
+            `).join('');
+        }
+
+        function loadHistory(index) {
+            currentInput = history[index].expr;
+            justEvaluated = false;
+            updateDisplay();
+            evaluate();
+        }
+
+        // کیبورد
+        document.addEventListener('keydown', function(e) {
+            const key = e.key;
+            
+            if (key === 'Enter' || key === '=') {
+                e.preventDefault();
+                evaluate();
+            } else if (key === 'Escape') {
+                clearAll();
+            } else if (key === 'Backspace') {
+                e.preventDefault();
+                backspace();
+            } else if (/[0-9]/.test(key)) {
+                appendToInput(key);
+            } else if (['+', '-', '*', '/', '.', '(', ')', '^', '%'].includes(key)) {
+                e.preventDefault();
+                appendToInput(key);
+            }
+        });
+
+        // شروع
+        renderButtons();
+    </script>
+</body>
+</html>

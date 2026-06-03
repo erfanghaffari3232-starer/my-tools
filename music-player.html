@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پلیر موزیک با پلی‌لیست</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: white;
+        }
+        .player {
+            background: #1a1a1a;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            border: 2px solid #e94560;
+            overflow: hidden;
+        }
+        .now-playing {
+            background: linear-gradient(135deg, #0f0c29, #302b63);
+            padding: 2rem 1.5rem 1.5rem;
+            text-align: center;
+        }
+        .album-art {
+            width: 180px;
+            height: 180px;
+            background: #1a1a2e;
+            border-radius: 20px;
+            margin: 0 auto 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 3px solid #e94560;
+            transition: all 0.5s;
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .song-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 0.3rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .song-artist {
+            color: #a2a8d3;
+            font-size: 0.9rem;
+            margin-bottom: 1.2rem;
+        }
+        .progress-area {
+            margin-bottom: 0.8rem;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #333;
+            border-radius: 10px;
+            cursor: pointer;
+            position: relative;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #e94560;
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        .time-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #a2a8d3;
+            font-family: monospace;
+            direction: ltr;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            padding: 1rem;
+            flex-wrap: wrap;
+        }
+        .ctrl-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .ctrl-btn:hover {
+            background: rgba(255,255,255,0.1);
+            transform: scale(1.1);
+        }
+        .play-btn {
+            background: #e94560;
+            width: 65px;
+            height: 65px;
+            font-size: 2rem;
+            box-shadow: 0 0 20px rgba(233,69,96,0.4);
+        }
+        .play-btn:hover {
+            background: #c73652;
+            box-shadow: 0 0 30px rgba(233,69,96,0.6);
+        }
+        .active-mode {
+            color: #e94560;
+            background: rgba(233,69,96,0.2);
+        }
+        .volume-area {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 1.5rem 1rem;
+            justify-content: center;
+        }
+        .volume-slider {
+            width: 100px;
+            accent-color: #e94560;
+            cursor: pointer;
+        }
+        .playlist {
+            background: #111;
+            padding: 1rem;
+            max-height: 320px;
+            overflow-y: auto;
+        }
+        .playlist-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0 0.5rem;
+        }
+        .playlist-header h3 {
+            font-size: 1rem;
+            color: #e94560;
+        }
+        .add-btn {
+            background: #533483;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: 0.3s;
+        }
+        .add-btn:hover {
+            background: #e94560;
+        }
+        .song-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 4px;
+        }
+        .song-item:hover {
+            background: #2a2a2a;
+        }
+        .song-item.active {
+            background: #1a1a2e;
+            border-right: 4px solid #e94560;
+        }
+        .song-item .index {
+            width: 25px;
+            text-align: center;
+            color: #666;
+            font-size: 0.85rem;
+        }
+        .song-item.active .index {
+            color: #e94560;
+        }
+        .song-item .info {
+            flex: 1;
+            min-width: 0;
+        }
+        .song-item .name {
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .song-item .artist {
+            font-size: 0.75rem;
+            color: #888;
+        }
+        .song-item .duration {
+            font-size: 0.75rem;
+            color: #666;
+            font-family: monospace;
+            direction: ltr;
+        }
+        .song-item .remove-btn {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 5px;
+            transition: 0.3s;
+        }
+        .song-item .remove-btn:hover {
+            color: #e94560;
+        }
+        .empty-playlist {
+            text-align: center;
+            color: #555;
+            padding: 2rem;
+        }
+        .file-input {
+            display: none;
+        }
+        audio {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="player">
+        <!-- بخش Now Playing -->
+        <div class="now-playing">
+            <div class="album-art" id="albumArt">🎵</div>
+            <div class="song-title" id="songTitle">آهنگی انتخاب نشده</div>
+            <div class="song-artist" id="songArtist">پلی‌لیست خالی است</div>
+
+            <!-- نوار پیشرفت -->
+            <div class="progress-area">
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="time-row">
+                    <span id="currentTime">00:00</span>
+                    <span id="totalTime">00:00</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- کنترل‌ها -->
+        <div class="controls">
+            <button class="ctrl-btn" id="shuffleBtn" onclick="toggleShuffle()" title="پخش تصادفی">🔀</button>
+            <button class="ctrl-btn" onclick="prevSong()" title="قبلی">⏮️</button>
+            <button class="ctrl-btn play-btn" id="playBtn" onclick="togglePlay()" title="پخش/توقف">▶️</button>
+            <button class="ctrl-btn" onclick="nextSong()" title="بعدی">⏭️</button>
+            <button class="ctrl-btn" id="repeatBtn" onclick="toggleRepeat()" title="تکرار">🔁</button>
+        </div>
+
+        <!-- صدا -->
+        <div class="volume-area">
+            <span>🔈</span>
+            <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="0.8" oninput="changeVolume(this.value)">
+            <span>🔊</span>
+        </div>
+
+        <!-- پلی‌لیست -->
+        <div class="playlist">
+            <div class="playlist-header">
+                <h3>📋 پلی‌لیست (<span id="playlistCount">0</span>)</h3>
+                <label class="add-btn" for="musicFiles">➕ افزودن آهنگ</label>
+                <input type="file" id="musicFiles" class="file-input" accept="audio/*" multiple>
+            </div>
+            <div id="playlistContainer">
+                <div class="empty-playlist">
+                    🎶 آهنگی در پلی‌لیست نیست<br>
+                    <small>از دکمه بالا آهنگ اضافه کنید</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <audio id="audioPlayer"></audio>
+
+    <script>
+        const audio = document.getElementById('audioPlayer');
+        const playBtn = document.getElementById('playBtn');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const currentTimeEl = document.getElementById('currentTime');
+        const totalTimeEl = document.getElementById('totalTime');
+        const songTitle = document.getElementById('songTitle');
+        const songArtist = document.getElementById('songArtist');
+        const albumArt = document.getElementById('albumArt');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const shuffleBtn = document.getElementById('shuffleBtn');
+        const repeatBtn = document.getElementById('repeatBtn');
+        const musicFiles = document.getElementById('musicFiles');
+        const playlistContainer = document.getElementById('playlistContainer');
+        const playlistCount = document.getElementById('playlistCount');
+
+        let playlist = [];
+        let currentIndex = -1;
+        let isShuffle = false;
+        let repeatMode = 0; // 0: بدون تکرار, 1: تکرار همه, 2: تکرار یکی
+        const emojis = ['🎵', '🎶', '🎹', '🎸', '🎺', '🥁', '🎻', '🎤', '💿', '🎧'];
+
+        // اضافه کردن آهنگ
+        musicFiles.addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            files.forEach(file => {
+                const url = URL.createObjectURL(file);
+                const name = file.name.replace(/\.[^/.]+$/, "");
+                playlist.push({
+                    name: name,
+                    artist: 'ناشناس',
+                    url: url,
+                    duration: 0
+                });
+                // گرفتن مدت زمان
+                const tempAudio = new Audio(url);
+                tempAudio.addEventListener('loadedmetadata', () => {
+                    const item = playlist.find(p => p.url === url);
+                    if (item) item.duration = tempAudio.duration;
+                    renderPlaylist();
+                });
+            });
+            
+            if (currentIndex === -1 && playlist.length > 0) {
+                currentIndex = 0;
+                loadSong(currentIndex);
+            }
+            
+            renderPlaylist();
+            musicFiles.value = '';
+        });
+
+        // نمایش پلی‌لیست
+        function renderPlaylist() {
+            playlistCount.textContent = playlist.length;
+            
+            if (playlist.length === 0) {
+                playlistContainer.innerHTML = '<div class="empty-playlist">🎶 آهنگی در پلی‌لیست نیست<br><small>از دکمه بالا آهنگ اضافه کنید</small></div>';
+                return;
+            }
+
+            playlistContainer.innerHTML = playlist.map((song, index) => `
+                <div class="song-item ${index === currentIndex ? 'active' : ''}" onclick="playSong(${index})" ondblclick="removeSong(${index}, event)">
+                    <span class="index">${index === currentIndex ? '▶️' : index + 1}</span>
+                    <div class="info">
+                        <div class="name">${song.name}</div>
+                        <div class="artist">${song.artist}</div>
+                    </div>
+                    <span class="duration">${formatTime(song.duration)}</span>
+                    <button class="remove-btn" onclick="removeSong(${index}, event)" title="حذف">✕</button>
+                </div>
+            `).join('');
+        }
+
+        // پخش آهنگ با ایندکس
+        function playSong(index) {
+            currentIndex = index;
+            loadSong(index);
+            audio.play();
+        }
+
+        // لود آهنگ
+        function loadSong(index) {
+            if (index < 0 || index >= playlist.length) return;
+            
+            const song = playlist[index];
+            audio.src = song.url;
+            songTitle.textContent = song.name;
+            songArtist.textContent = song.artist;
+            albumArt.textContent = emojis[index % emojis.length];
+            
+            renderPlaylist();
+        }
+
+        // حذف آهنگ
+        function removeSong(index, event) {
+            event.stopPropagation();
+            
+            URL.revokeObjectURL(playlist[index].url);
+            playlist.splice(index, 1);
+            
+            if (playlist.length === 0) {
+                currentIndex = -1;
+                audio.src = '';
+                songTitle.textContent = 'آهنگی انتخاب نشده';
+                songArtist.textContent = 'پلی‌لیست خالی است';
+                albumArt.textContent = '🎵';
+            } else if (index === currentIndex) {
+                if (currentIndex >= playlist.length) currentIndex = playlist.length - 1;
+                loadSong(currentIndex);
+            } else if (index < currentIndex) {
+                currentIndex--;
+            }
+            
+            renderPlaylist();
+        }
+
+        // پخش/توقف
+        function togglePlay() {
+            if (playlist.length === 0) return;
+            
+            if (currentIndex === -1) {
+                currentIndex = 0;
+                loadSong(currentIndex);
+            }
+            
+            if (audio.paused) {
+                audio.play();
+            } else {
+                audio.pause();
+            }
+        }
+
+        audio.addEventListener('play', () => playBtn.textContent = '⏸️');
+        audio.addEventListener('pause', () => playBtn.textContent = '▶️');
+        audio.addEventListener('ended', () => {
+            if (repeatMode === 2) {
+                audio.currentTime = 0;
+                audio.play();
+            } else {
+                nextSong();
+            }
+        });
+
+        // آهنگ بعدی
+        function nextSong() {
+            if (playlist.length === 0) return;
+            
+            if (isShuffle) {
+                let randomIndex;
+                do {
+                    randomIndex = Math.floor(Math.random() * playlist.length);
+                } while (randomIndex === currentIndex && playlist.length > 1);
+                currentIndex = randomIndex;
+            } else {
+                currentIndex = (currentIndex + 1) % playlist.length;
+            }
+            
+            loadSong(currentIndex);
+            audio.play();
+        }
+
+        // آهنگ قبلی
+        function prevSong() {
+            if (playlist.length === 0) return;
+            
+            if (audio.currentTime > 3) {
+                audio.currentTime = 0;
+            } else {
+                if (isShuffle) {
+                    currentIndex = Math.floor(Math.random() * playlist.length);
+                } else {
+                    currentIndex = (currentIndex - 1 + playlist.length) % playlist.length;
+                }
+                loadSong(currentIndex);
+            }
+            audio.play();
+        }
+
+        // تصادفی
+        function toggleShuffle() {
+            isShuffle = !isShuffle;
+            shuffleBtn.classList.toggle('active-mode', isShuffle);
+        }
+
+        // تکرار
+        function toggleRepeat() {
+            repeatMode = (repeatMode + 1) % 3;
+            repeatBtn.classList.remove('active-mode');
+            if (repeatMode === 1) {
+                repeatBtn.textContent = '🔁';
+                repeatBtn.classList.add('active-mode');
+            } else if (repeatMode === 2) {
+                repeatBtn.textContent = '🔂';
+                repeatBtn.classList.add('active-mode');
+            } else {
+                repeatBtn.textContent = '🔁';
+            }
+        }
+
+        // صدا
+        function changeVolume(value) {
+            audio.volume = value;
+        }
+        audio.volume = 0.8;
+
+        // نوار پیشرفت
+        audio.addEventListener('timeupdate', () => {
+            const percent = (audio.currentTime / audio.duration) * 100 || 0;
+            progressFill.style.width = percent + '%';
+            currentTimeEl.textContent = formatTime(audio.currentTime);
+        });
+
+        audio.addEventListener('loadedmetadata', () => {
+            totalTimeEl.textContent = formatTime(audio.duration);
+            if (playlist[currentIndex]) {
+                playlist[currentIndex].duration = audio.duration;
+                renderPlaylist();
+            }
+        });
+
+        progressBar.addEventListener('click', function(e) {
+            const rect = progressBar.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            audio.currentTime = percent * audio.duration;
+        });
+
+        // کیبورد
+        document.addEventListener('keydown', function(e) {
+            switch(e.key.toLowerCase()) {
+                case ' ': e.preventDefault(); togglePlay(); break;
+                case 'arrowright': audio.currentTime = Math.min(audio.duration, audio.currentTime + 5); break;
+                case 'arrowleft': audio.currentTime = Math.max(0, audio.currentTime - 5); break;
+                case 'arrowup': audio.volume = Math.min(1, audio.volume + 0.1); volumeSlider.value = audio.volume; break;
+                case 'arrowdown': audio.volume = Math.max(0, audio.volume - 0.1); volumeSlider.value = audio.volume; break;
+                case 'n': nextSong(); break;
+                case 'p': prevSong(); break;
+            }
+        });
+
+        // فرمت زمان
+        function formatTime(seconds) {
+            if (isNaN(seconds) || seconds === Infinity) return '00:00';
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+    </script>
+</body>
+</html>

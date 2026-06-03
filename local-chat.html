@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>چت محلی</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            min-height: 100vh; display: flex; justify-content: center; align-items: center;
+            padding: 20px; color: white;
+        }
+        .chat-app {
+            background: #1a1a1a; border-radius: 24px; width: 100%; max-width: 500px;
+            height: 80vh; max-height: 650px; display: flex; flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6); border: 2px solid #9b59b6;
+            overflow: hidden;
+        }
+        .chat-header {
+            background: #111; padding: 15px 20px; display: flex; align-items: center;
+            justify-content: space-between; border-bottom: 1px solid #333;
+        }
+        .chat-header .user-info { display: flex; align-items: center; gap: 10px; }
+        .chat-header .avatar {
+            width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-size: 1.3rem; font-weight: bold;
+        }
+        .chat-header .username { font-weight: bold; font-size: 1rem; }
+        .chat-header .status { font-size: 0.75rem; color: #4ecca3; }
+        .settings-btn {
+            background: none; border: none; color: #aaa; font-size: 1.3rem; cursor: pointer; padding: 5px;
+        }
+        .settings-btn:hover { color: white; }
+        .messages-area {
+            flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px;
+            background: #0a0a0a;
+        }
+        .message {
+            max-width: 80%; padding: 10px 14px; border-radius: 16px; font-size: 0.9rem;
+            line-height: 1.5; word-break: break-word; position: relative; animation: msgIn 0.3s ease;
+        }
+        @keyframes msgIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .message.sent {
+            align-self: flex-end; background: #9b59b6; color: white;
+            border-bottom-left-radius: 4px;
+        }
+        .message.received {
+            align-self: flex-start; background: #2a2a2a; color: white;
+            border-bottom-right-radius: 4px;
+        }
+        .message .msg-time {
+            font-size: 0.65rem; color: rgba(255,255,255,0.6); margin-top: 4px; text-align: left; direction: ltr;
+        }
+        .message .sender-name {
+            font-size: 0.7rem; color: #f39c12; margin-bottom: 2px; font-weight: bold;
+        }
+        .date-divider {
+            text-align: center; color: #666; font-size: 0.75rem; margin: 8px 0;
+            position: relative;
+        }
+        .date-divider::before {
+            content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px;
+            background: #333; z-index: 0;
+        }
+        .date-divider span {
+            background: #0a0a0a; padding: 0 10px; position: relative; z-index: 1;
+        }
+        .typing-indicator {
+            align-self: flex-start; background: #2a2a2a; padding: 12px 18px; border-radius: 16px;
+            display: none; gap: 4px;
+        }
+        .typing-indicator.show { display: flex; }
+        .typing-dot {
+            width: 8px; height: 8px; background: #888; border-radius: 50%;
+            animation: typingBounce 1.4s infinite ease-in-out;
+        }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typingBounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-8px); }
+        }
+        .input-area {
+            padding: 12px 15px; background: #111; display: flex; gap: 8px; align-items: center;
+            border-top: 1px solid #333;
+        }
+        .input-area input {
+            flex: 1; background: #0d0d1a; border: 1px solid #444; padding: 12px 15px;
+            border-radius: 25px; color: white; font-family: inherit; font-size: 0.9rem; transition: 0.3s;
+        }
+        .input-area input:focus { outline: none; border-color: #9b59b6; }
+        .send-btn {
+            background: #9b59b6; color: white; border: none; width: 42px; height: 42px;
+            border-radius: 50%; cursor: pointer; font-size: 1.3rem; transition: 0.3s; flex-shrink: 0;
+        }
+        .send-btn:hover { background: #8e44ad; transform: scale(1.1); }
+        .emoji-btn {
+            background: none; border: none; color: #aaa; font-size: 1.3rem; cursor: pointer; padding: 5px;
+        }
+        .emoji-btn:hover { color: #f39c12; }
+        .emoji-picker {
+            display: none; flex-wrap: wrap; gap: 4px; padding: 8px; background: #1a1a1a;
+            border-radius: 12px; position: absolute; bottom: 70px; border: 1px solid #333; z-index: 10;
+        }
+        .emoji-picker.show { display: flex; }
+        .emoji-picker span {
+            cursor: pointer; font-size: 1.3rem; padding: 4px; border-radius: 6px; transition: 0.2s;
+        }
+        .emoji-picker span:hover { background: #333; }
+        .user-switch {
+            display: flex; gap: 8px; padding: 8px 15px; background: #0d0d1a; border-bottom: 1px solid #333;
+        }
+        .user-switch button {
+            flex: 1; padding: 8px; border-radius: 20px; border: 1px solid #444; background: #1a1a1a;
+            color: #aaa; cursor: pointer; font-family: inherit; font-size: 0.8rem; transition: 0.3s;
+        }
+        .user-switch button.active { background: #9b59b6; color: white; border-color: #9b59b6; }
+        .user-switch button:hover:not(.active) { background: #2a2a2a; }
+        .clear-btn {
+            background: none; border: none; color: #666; font-size: 0.75rem; cursor: pointer;
+            padding: 5px 10px;
+        }
+        .clear-btn:hover { color: #e94560; }
+    </style>
+</head>
+<body>
+    <div class="chat-app">
+        <!-- هدر -->
+        <div class="chat-header">
+            <div class="user-info">
+                <div class="avatar" id="currentAvatar" style="background:#9b59b6;">👤</div>
+                <div>
+                    <div class="username" id="currentUsername">کاربر ۱</div>
+                    <div class="status">آنلاین</div>
+                </div>
+            </div>
+            <button class="clear-btn" onclick="clearChat()" title="پاک کردن گفتگو">🗑️ پاک کردن</button>
+        </div>
+
+        <!-- تعویض کاربر -->
+        <div class="user-switch">
+            <button class="active" onclick="switchUser(1)">👤 کاربر ۱</button>
+            <button onclick="switchUser(2)">👤 کاربر ۲</button>
+        </div>
+
+        <!-- پیام‌ها -->
+        <div class="messages-area" id="messagesArea">
+            <div class="date-divider"><span>امروز</span></div>
+        </div>
+
+        <!-- تایپینگ -->
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+        </div>
+
+        <!-- ورودی -->
+        <div class="input-area" style="position:relative;">
+            <button class="emoji-btn" onclick="toggleEmojiPicker()">😊</button>
+            <div class="emoji-picker" id="emojiPicker">
+                <span onclick="addEmoji('😊')">😊</span><span onclick="addEmoji('😂')">😂</span>
+                <span onclick="addEmoji('❤️')">❤️</span><span onclick="addEmoji('👍')">👍</span>
+                <span onclick="addEmoji('🔥')">🔥</span><span onclick="addEmoji('🎉')">🎉</span>
+                <span onclick="addEmoji('😍')">😍</span><span onclick="addEmoji('🤔')">🤔</span>
+                <span onclick="addEmoji('😢')">😢</span><span onclick="addEmoji('😎')">😎</span>
+                <span onclick="addEmoji('🙏')">🙏</span><span onclick="addEmoji('💪')">💪</span>
+                <span onclick="addEmoji('👋')">👋</span><span onclick="addEmoji('🥳')">🥳</span>
+                <span onclick="addEmoji('😡')">😡</span><span onclick="addEmoji('🤩')">🤩</span>
+            </div>
+            <input type="text" id="messageInput" placeholder="پیام خود را بنویسید..." onkeypress="if(event.key==='Enter') sendMessage()">
+            <button class="send-btn" onclick="sendMessage()">➤</button>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'localChatMessages';
+        let currentUser = 1;
+        let messages = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+
+        const userProfiles = {
+            1: { name: 'کاربر ۱', avatar: '👤', color: '#9b59b6' },
+            2: { name: 'کاربر ۲', avatar: '👤', color: '#e94560' }
+        };
+
+        function switchUser(userNum) {
+            currentUser = userNum;
+            
+            document.querySelectorAll('.user-switch button').forEach((btn, i) => {
+                btn.classList.toggle('active', i + 1 === userNum);
+            });
+            
+            const profile = userProfiles[userNum];
+            document.getElementById('currentUsername').textContent = profile.name;
+            document.getElementById('currentAvatar').textContent = profile.avatar;
+            document.getElementById('currentAvatar').style.background = profile.color;
+            
+            document.getElementById('messageInput').focus();
+            scrollToBottom();
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const message = {
+                id: Date.now(),
+                userId: currentUser,
+                text: text,
+                timestamp: new Date().toISOString()
+            };
+
+            messages.push(message);
+            input.value = '';
+            
+            saveAndRender();
+            
+            // شبیه‌سازی تایپینگ کاربر مقابل
+            simulateTyping();
+        }
+
+        function simulateTyping() {
+            const otherUser = currentUser === 1 ? 2 : 1;
+            const typingEl = document.getElementById('typingIndicator');
+            
+            typingEl.classList.add('show');
+            scrollToBottom();
+            
+            // احتمال ۳۰٪ پاسخ خودکار
+            if (Math.random() < 0.3) {
+                const replies = [
+                    'سلام! چطوری؟ 😊',
+                    'خوبم، ممنون!',
+                    'آره، موافقم 👍',
+                    'چه جالب!',
+                    'باشه، حتماً',
+                    '😍😍😍',
+                    'بعداً بهت می‌گم',
+                    'آفرین! 👏'
+                ];
+                
+                setTimeout(() => {
+                    typingEl.classList.remove('show');
+                    
+                    const reply = {
+                        id: Date.now(),
+                        userId: otherUser,
+                        text: replies[Math.floor(Math.random() * replies.length)],
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    messages.push(reply);
+                    saveAndRender();
+                }, 1500 + Math.random() * 2000);
+            } else {
+                setTimeout(() => {
+                    typingEl.classList.remove('show');
+                }, 1000);
+            }
+        }
+
+        function renderMessages() {
+            const area = document.getElementById('messagesArea');
+            
+            if (messages.length === 0) {
+                area.innerHTML = '<div class="date-divider"><span>امروز</span></div>';
+                return;
+            }
+
+            let html = '<div class="date-divider"><span>امروز</span></div>';
+            let lastDate = '';
+
+            messages.forEach(msg => {
+                const msgDate = new Date(msg.timestamp).toLocaleDateString('fa-IR');
+                
+                if (msgDate !== lastDate) {
+                    html += `<div class="date-divider"><span>${msgDate}</span></div>`;
+                    lastDate = msgDate;
+                }
+
+                const isSent = msg.userId === currentUser;
+                const profile = userProfiles[msg.userId];
+                const time = new Date(msg.timestamp).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
+
+                html += `
+                    <div class="message ${isSent ? 'sent' : 'received'}">
+                        ${!isSent ? `<div class="sender-name">${profile.avatar} ${profile.name}</div>` : ''}
+                        <div>${msg.text}</div>
+                        <div class="msg-time">${time}</div>
+                    </div>
+                `;
+            });
+
+            area.innerHTML = html;
+            scrollToBottom();
+        }
+
+        function scrollToBottom() {
+            const area = document.getElementById('messagesArea');
+            setTimeout(() => {
+                area.scrollTop = area.scrollHeight;
+            }, 100);
+        }
+
+        function clearChat() {
+            if (!confirm('آیا از پاک کردن همه پیام‌ها مطمئن هستید؟')) return;
+            messages = [];
+            saveAndRender();
+        }
+
+        function toggleEmojiPicker() {
+            const picker = document.getElementById('emojiPicker');
+            picker.classList.toggle('show');
+        }
+
+        function addEmoji(emoji) {
+            const input = document.getElementById('messageInput');
+            input.value += emoji;
+            input.focus();
+            document.getElementById('emojiPicker').classList.remove('show');
+        }
+
+        // بستن پیکر ایموجی با کلیک بیرون
+        document.addEventListener('click', function(e) {
+            const picker = document.getElementById('emojiPicker');
+            const emojiBtn = document.querySelector('.emoji-btn');
+            if (!picker.contains(e.target) && e.target !== emojiBtn) {
+                picker.classList.remove('show');
+            }
+        });
+
+        function saveAndRender() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+            renderMessages();
+        }
+
+        // رفرش خودکار برای شبیه‌سازی چند تب
+        window.addEventListener('storage', function(e) {
+            if (e.key === STORAGE_KEY) {
+                messages = JSON.parse(e.newValue || '[]');
+                renderMessages();
+            }
+        });
+
+        // شروع
+        switchUser(1);
+        renderMessages();
+    </script>
+</body>
+</html>
