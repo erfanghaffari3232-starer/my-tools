@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Erfan Space — منظومه شمسی سه‌بعدی</title>
+<style>
+:root{color-scheme:dark;--cyan:#6deaff;--panel:rgba(9,18,38,.82);--line:rgba(128,210,255,.22)}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02040c;color:#eef7ff;font-family:Tahoma,Arial,sans-serif}
+#stage{position:fixed;inset:0}canvas{display:block}
+.hud{position:fixed;z-index:2;pointer-events:none}.panel{pointer-events:auto;background:var(--panel);border:1px solid var(--line);box-shadow:0 12px 50px #0008,inset 0 0 30px #12244855;backdrop-filter:blur(16px);border-radius:18px}
+header{top:16px;right:16px;padding:14px 18px;max-width:min(92vw,470px)}h1{font-size:clamp(18px,2.4vw,27px);margin:0 0 5px;color:var(--cyan);letter-spacing:.3px} .sub{font-size:12px;color:#a9c4df}
+#info{left:16px;top:16px;width:min(310px,calc(100vw - 32px));padding:17px}#planetName{font-size:22px;margin:0 0 8px;color:#fff}#planetDesc{font-size:13px;line-height:1.8;color:#c8d9ec;min-height:68px}.stat{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid #ffffff12;font-size:12px}.stat span:first-child{color:#89a9c9}.stat strong{font-weight:600}
+#controls{bottom:16px;left:50%;transform:translateX(-50%);width:min(760px,calc(100vw - 24px));padding:12px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center}
+button{font-family:inherit;border:1px solid #69d9ff50;border-radius:11px;background:#102844;color:#eaf8ff;padding:9px 12px;cursor:pointer;transition:.2s;font-size:12px}button:hover,button.active{background:#13506b;border-color:#6deaff;box-shadow:0 0 15px #25caff25}button:focus-visible{outline:2px solid var(--cyan)}
+label{font-size:12px;color:#c2d8ef;display:flex;align-items:center;gap:7px}input[type=range]{width:105px;accent-color:#65e7ff}
+#planetMenu{position:fixed;right:16px;bottom:16px;z-index:3;display:flex;gap:6px;flex-wrap:wrap;max-width:240px;justify-content:flex-start;pointer-events:auto}
+#hint{position:fixed;right:50%;top:50%;transform:translate(50%,-50%);padding:10px 14px;background:#061329b9;border:1px solid #75dfff35;border-radius:12px;color:#d6f6ff;font-size:12px;pointer-events:none;opacity:1;transition:opacity 2s}
+#layerModal{display:none;position:fixed;inset:0;z-index:10;background:#01040bdc;backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:18px}#layerModal.show{display:flex}.modal{width:min(780px,100%);max-height:90vh;overflow:auto;padding:22px}.modal h2{margin-top:0;color:var(--cyan)}.layers{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px}.layer{border:1px solid #6deaff30;border-radius:12px;padding:12px;background:#0b1a31}.swatch{height:8px;border-radius:8px;margin-bottom:9px}.layer p{font-size:12px;line-height:1.7;color:#bdd0e5}.foot{font-size:11px;color:#8ea8c4;line-height:1.7;margin-top:12px}
+#loading{position:fixed;inset:0;display:grid;place-items:center;background:#02040c;z-index:20;transition:opacity .8s}#loading.hide{opacity:0;pointer-events:none}.loadbox{text-align:center}.spinner{width:40px;height:40px;border:3px solid #18334d;border-top-color:var(--cyan);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 14px}@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:650px){header{top:10px;right:10px;padding:10px 12px}header .sub{display:none}#info{top:auto;bottom:106px;left:10px;padding:12px;width:min(260px,calc(100vw - 20px))}#planetDesc{min-height:42px;font-size:11px}.stat{padding:5px 0}#planetMenu{right:auto;left:10px;bottom:16px;max-width:calc(100vw - 20px)}#controls{bottom:64px;left:auto;right:10px;transform:none;width:auto;max-width:calc(100vw - 20px);padding:8px;gap:5px}button{padding:8px 9px}label{font-size:11px}input[type=range]{width:75px}}
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<div id="loading"><div class="loadbox"><div class="spinner"></div><strong>در حال آماده‌سازی کیهان سه‌بعدی…</strong><div class="sub" style="margin-top:8px">Erfan Space • Scientific Explorer</div></div></div>
+<header class="hud panel"><h1>✦ ERFAN SPACE</h1><div class="sub">کاوشگر سه‌بعدی منظومه شمسی · نسخه گرافیکی پیشرفته</div></header>
+<aside id="info" class="hud panel"><h2 id="planetName">خورشید</h2><div id="planetDesc">ستارهٔ مرکز منظومه شمسی و منبع نور و گرما برای سیاره‌ها.</div><div class="stat"><span>نوع جرم</span><strong id="kind">ستاره</strong></div><div class="stat"><span>قطر تقریبی</span><strong id="diameter">۱٬۳۹۲٬۷۰۰ km</strong></div><div class="stat"><span>فاصله از خورشید</span><strong id="distance">۰</strong></div><div class="stat"><span>قمرهای شناخته‌شده</span><strong id="moons">—</strong></div><div class="foot">برای انتخاب هر سیاره روی آن کلیک کن. با کشیدن ماوس بچرخان و با چرخ ماوس بزرگ‌نمایی کن.</div></aside>
+<div id="planetMenu"></div>
+<div id="controls" class="hud panel">
+<button id="pause">Ⅱ توقف</button><button id="orbits" class="active">مدارها ✓</button><button id="labels" class="active">نام‌ها ✓</button><button id="layers">نمایش لایه‌های زمین</button><button id="reset">نمای کلی</button>
+<label>سرعت <input id="speed" type="range" min="0" max="3" step=".1" value=".7"><span id="speedVal">0.7×</span></label>
+</div>
+<div id="hint">برای دیدن جزئیات، روی یک سیاره کلیک کن</div>
+<div id="layerModal"><div class="modal panel"><button id="closeModal" style="float:left">بستن ✕</button><h2>لایه‌های درونی زمین</h2><p style="color:#bcd3e9;font-size:13px;line-height:1.8">این نمای آموزشی شماتیک است؛ ضخامت لایه‌ها برای دیده‌شدن بزرگ‌نمایی شده و مقیاس واقعی نیست.</p><div class="layers"><div class="layer"><div class="swatch" style="background:#4db5ff"></div><strong>پوسته</strong><p>لایهٔ سنگی نازک و بیرونی؛ محل زندگی ما.</p></div><div class="layer"><div class="swatch" style="background:#e5b45e"></div><strong>گوشته</strong><p>سنگ‌های داغ که در بازه‌های زمانی بسیار طولانی حرکت می‌کنند.</p></div><div class="layer"><div class="swatch" style="background:#ff7045"></div><strong>هستهٔ بیرونی</strong><p>فلز مایع، عمدتاً آهن و نیکل؛ به ایجاد میدان مغناطیسی کمک می‌کند.</p></div><div class="layer"><div class="swatch" style="background:#ffe6a0"></div><strong>هستهٔ درونی</strong><p>بخش مرکزی جامد، عمدتاً آهن و نیکل.</p></div></div><div class="foot">مدل آموزشی Erfan Space. اندازه‌ها، فاصله‌ها و سرعت‌های نمایشی برای نمایش بهتر فشرده یا مقیاس‌بندی شده‌اند.</div></div></div>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+import {OrbitControls} from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js';
+
+const host=document.querySelector('#stage');
+const scene=new THREE.Scene(); scene.background=new THREE.Color(0x02040c); scene.fog=new THREE.FogExp2(0x02040c,.0008);
+const camera=new THREE.PerspectiveCamera(48,innerWidth/innerHeight,.1,5000); camera.position.set(0,115,260);
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false}); renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.setSize(innerWidth,innerHeight); renderer.outputColorSpace=THREE.SRGBColorSpace; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.15; host.appendChild(renderer.domElement);
+const controls=new OrbitControls(camera,renderer.domElement); controls.enableDamping=true; controls.dampingFactor=.045; controls.minDistance=18; controls.maxDistance=750;
+scene.add(new THREE.AmbientLight(0x8396c8,.55));
+const sunLight=new THREE.PointLight(0xffd9a1,2600,1600,1.5); scene.add(sunLight);
+const loader=new THREE.TextureLoader(); loader.setCrossOrigin('anonymous');
+const texBase='https://www.solarsystemscope.com/textures/download/';
+const earthExtraBase='https://threejs.org/examples/textures/planets/';
+function tex(file){const t=loader.load(texBase+file,()=>{},undefined,()=>{});t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=Math.min(renderer.capabilities.getMaxAnisotropy(),8);return t;}
+const starGeo=new THREE.BufferGeometry(), starN=4500, positions=new Float32Array(starN*3), colors=new Float32Array(starN*3);
+for(let i=0;i<starN;i++){const r=900+Math.random()*1500,a=Math.random()*Math.PI*2,b=Math.acos(2*Math.random()-1);positions[i*3]=r*Math.sin(b)*Math.cos(a);positions[i*3+1]=r*Math.cos(b);positions[i*3+2]=r*Math.sin(b)*Math.sin(a);const c=new THREE.Color().setHSL(.52+Math.random()*.16,.25,.55+Math.random()*.4);colors.set([c.r,c.g,c.b],i*3);}
+starGeo.setAttribute('position',new THREE.BufferAttribute(positions,3));starGeo.setAttribute('color',new THREE.BufferAttribute(colors,3));scene.add(new THREE.Points(starGeo,new THREE.PointsMaterial({size:1.6,vertexColors:true,sizeAttenuation:true,transparent:true,opacity:.92})));
+const sun=new THREE.Mesh(new THREE.SphereGeometry(10,96,64),new THREE.MeshBasicMaterial({color:0xffb23e}));scene.add(sun);
+const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:makeGlow(),color:0xff8a28,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));glow.scale.set(62,62,1);sun.add(glow);
+function makeGlow(){const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d'),g=x.createRadialGradient(64,64,2,64,64,64);g.addColorStop(0,'rgba(255,245,190,1)');g.addColorStop(.18,'rgba(255,160,45,.65)');g.addColorStop(1,'rgba(255,90,20,0)');x.fillStyle=g;x.fillRect(0,0,128,128);return new THREE.CanvasTexture(c);}
+const data=[
+{name:'عطارد',en:'Mercury',r:1.65,d:20,color:0x9d9991,texture:'2k_mercury.jpg',period:88,diam:'۴٬۸۷۹ km',moons:'۰',kind:'سیارهٔ سنگی',desc:'کوچک‌ترین سیاره و نزدیک‌ترین سیاره به خورشید؛ سطح آن پر از دهانه‌های برخوردی است.'},
+{name:'زهره',en:'Venus',r:2.55,d:31,color:0xd9a36a,texture:'2k_venus_surface.jpg',period:225,diam:'۱۲٬۱۰۴ km',moons:'۰',kind:'سیارهٔ سنگی',desc:'داغ‌ترین سیارهٔ منظومه شمسی با جو بسیار چگال و ابرهای اسیدی.'},
+{name:'زمین',en:'Earth',r:2.8,d:44,color:0x3c8fff,texture:'2k_earth_daymap.jpg',period:365,diam:'۱۲٬۷۴۲ km',moons:'۱',kind:'سیارهٔ سنگی',desc:'جهانی با آب مایع سطحی، جو محافظ و تنها جهانی که تاکنون حیات در آن تأیید شده است.',earth:true},
+{name:'مریخ',en:'Mars',r:2.15,d:59,color:0xd36e4b,texture:'2k_mars.jpg',period:687,diam:'۶٬۷۷۹ km',moons:'۲',kind:'سیارهٔ سنگی',desc:'سیارهٔ سرخ با آتشفشان‌های عظیم، دره‌های پهناور و شواهدی از آب مایع در گذشته.'},
+{name:'مشتری',en:'Jupiter',r:7.5,d:86,color:0xc99b78,texture:'2k_jupiter.jpg',period:4333,diam:'۱۳۹٬۸۲۰ km',moons:'۹۵+',kind:'غول گازی',desc:'بزرگ‌ترین سیاره؛ جو نواری و توفان بزرگ سرخ آن از ویژگی‌های مشهورش هستند.'},
+{name:'زحل',en:'Saturn',r:6.4,d:119,color:0xd9c49b,texture:'2k_saturn.jpg',period:10759,diam:'۱۱۶٬۴۶۰ km',moons:'۱۴۶+',kind:'غول گازی',desc:'غول گازی با سامانهٔ چشمگیر حلقه‌ها که از تکه‌های یخ و سنگ ساخته شده است.',rings:true},
+{name:'اورانوس',en:'Uranus',r:4.45,d:151,color:0x91e5e8,texture:'2k_uranus.jpg',period:30687,diam:'۵۰٬۷۲۴ km',moons:'۲۸',kind:'غول یخی',desc:'غول یخی آبی‌ـ‌سبز که محور چرخشش به‌شدت کج است.'},
+{name:'نپتون',en:'Neptune',r:4.3,d:181,color:0x426eff,texture:'2k_neptune.jpg',period:60190,diam:'۴۹٬۲۴۴ km',moons:'۱۶',kind:'غول یخی',desc:'جهانی آبی و دوردست با بادهای بسیار شدید.'}
+];
+const planetMeshes=[], orbitGroups=[]; const labelGroup=new THREE.Group();scene.add(labelGroup);
+function makeLabel(text){const c=document.createElement('canvas');c.width=256;c.height=64;const x=c.getContext('2d');x.font='bold 27px Tahoma,Arial';x.textAlign='center';x.fillStyle='#eaf8ff';x.shadowColor='#3edaff';x.shadowBlur=10;x.fillText(text,128,40);const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthWrite:false}));sp.scale.set(15,3.75,1);return sp;}
+for(const p of data){
+ const orbit=new THREE.Group();scene.add(orbit);orbit.position.x=0;
+ const g=new THREE.BufferGeometry();const pts=[];for(let i=0;i<=256;i++){const a=i/256*Math.PI*2;pts.push(Math.cos(a)*p.d,0,Math.sin(a)*p.d);}
+ g.setAttribute('position',new THREE.Float32BufferAttribute(pts,3));const line=new THREE.LineLoop(g,new THREE.LineBasicMaterial({color:0x5797d5,transparent:true,opacity:.25}));scene.add(line);orbitGroups.push(line);
+ const geo=new THREE.SphereGeometry(p.r,80,56);let map;
+ // Known high-resolution Three.js planet maps are used where available; a colored PBR fallback prevents missing-map blanks.
+ const mat=new THREE.MeshStandardMaterial({color:p.color,roughness:.94,metalness:.02});
+ if(p.texture){map=tex(p.texture);mat.map=map;}
+ if(p.earth){mat.color.set(0xffffff);mat.roughness=.82;}
+ const mesh=new THREE.Mesh(geo,mat);mesh.position.set(p.d,0,0);mesh.userData.index=planetMeshes.length;scene.add(mesh);
+ if(p.earth){
+   const clouds=loader.load(earthExtraBase+'earth_clouds_1024.png');clouds.colorSpace=THREE.SRGBColorSpace;
+   const cm=new THREE.MeshStandardMaterial({map:clouds,transparent:true,opacity:.26,depthWrite:false});const cl=new THREE.Mesh(new THREE.SphereGeometry(p.r*1.012,64,48),cm);mesh.add(cl);mesh.userData.clouds=cl;
+   const at=new THREE.Mesh(new THREE.SphereGeometry(p.r*1.055,64,48),new THREE.MeshBasicMaterial({color:0x4a9fff,transparent:true,opacity:.09,side:THREE.BackSide}));mesh.add(at);
+ }
+ if(p.rings){const ring=new THREE.Mesh(new THREE.RingGeometry(p.r*1.25,p.r*2.05,128),new THREE.MeshStandardMaterial({color:0xd5c29b,side:THREE.DoubleSide,transparent:true,opacity:.76,roughness:1}));ring.rotation.x=Math.PI/2.35;mesh.add(ring);}
+ const label=makeLabel(p.name);label.position.set(p.d,p.r+4,0);label.userData.planet=mesh;labelGroup.add(label);mesh.userData.label=label;
+ planetMeshes.push(mesh);
+}
+const sunLabel=makeLabel('خورشید');sunLabel.position.set(0,15,0);labelGroup.add(sunLabel);
+const menu=document.querySelector('#planetMenu');data.forEach((p,i)=>{const b=document.createElement('button');b.textContent=p.name;b.addEventListener('click',()=>selectPlanet(i));menu.appendChild(b);});
+let selected=-1,paused=false,showOrbits=true,showLabels=true,speed=.7;
+function selectPlanet(i){selected=i;const p=data[i],m=planetMeshes[i];document.querySelector('#planetName').textContent=p.name+' · '+p.en;document.querySelector('#planetDesc').textContent=p.desc;document.querySelector('#kind').textContent=p.kind;document.querySelector('#diameter').textContent=p.diam;document.querySelector('#distance').textContent=p.d+' واحد نمایشی';document.querySelector('#moons').textContent=p.moons;[...menu.children].forEach((b,j)=>b.classList.toggle('active',j===i));controls.target.copy(m.position);const dir=new THREE.Vector3().subVectors(camera.position,controls.target).normalize();camera.position.copy(m.position).add(dir.multiplyScalar(p.r*5+17));controls.update();}
+const ray=new THREE.Raycaster(),pointer=new THREE.Vector2();renderer.domElement.addEventListener('click',e=>{pointer.x=e.clientX/innerWidth*2-1;pointer.y=-(e.clientY/innerHeight)*2+1;ray.setFromCamera(pointer,camera);const hits=ray.intersectObjects(planetMeshes);if(hits.length)selectPlanet(hits[0].object.userData.index);});
+document.querySelector('#pause').onclick=e=>{paused=!paused;e.currentTarget.textContent=paused?'▶ ادامه':'Ⅱ توقف';};
+document.querySelector('#orbits').onclick=e=>{showOrbits=!showOrbits;orbitGroups.forEach(o=>o.visible=showOrbits);e.currentTarget.classList.toggle('active',showOrbits);e.currentTarget.textContent=showOrbits?'مدارها ✓':'مدارها ✕';};
+document.querySelector('#labels').onclick=e=>{showLabels=!showLabels;labelGroup.visible=showLabels;e.currentTarget.classList.toggle('active',showLabels);e.currentTarget.textContent=showLabels?'نام‌ها ✓':'نام‌ها ✕';};
+document.querySelector('#speed').oninput=e=>{speed=+e.target.value;document.querySelector('#speedVal').textContent=speed.toFixed(1)+'×';};
+document.querySelector('#reset').onclick=()=>{selected=-1;controls.target.set(0,0,0);camera.position.set(0,115,260);controls.update();document.querySelector('#planetName').textContent='خورشید';document.querySelector('#planetDesc').textContent='ستارهٔ مرکز منظومه شمسی و منبع نور و گرما برای سیاره‌ها.';document.querySelector('#kind').textContent='ستاره';document.querySelector('#diameter').textContent='۱٬۳۹۲٬۷۰۰ km';document.querySelector('#distance').textContent='۰';document.querySelector('#moons').textContent='—';[...menu.children].forEach(b=>b.classList.remove('active'));};
+document.querySelector('#layers').onclick=()=>document.querySelector('#layerModal').classList.add('show');document.querySelector('#closeModal').onclick=()=>document.querySelector('#layerModal').classList.remove('show');document.querySelector('#layerModal').addEventListener('click',e=>{if(e.target.id==='layerModal')e.currentTarget.classList.remove('show');});
+const clock=new THREE.Clock();
+function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.05);if(!paused){sun.rotation.y+=dt*.08*speed;planetMeshes.forEach((m,i)=>{const p=data[i];m.rotation.y+=dt*(.22+1/(p.r+1)) *speed;const a=clock.elapsedTime*speed*(.17/(1+p.d*.018));m.position.set(Math.cos(a)*p.d,Math.sin(a*.7)*p.d*.018,Math.sin(a)*p.d);m.userData.label.position.copy(m.position).add(new THREE.Vector3(0,p.r+4,0));if(m.userData.clouds)m.userData.clouds.rotation.y+=dt*.018*speed;});sunLabel.position.set(0,15,0);}controls.update();renderer.render(scene,camera);}
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));});
+animate();setTimeout(()=>{document.querySelector('#loading').classList.add('hide');setTimeout(()=>document.querySelector('#loading').remove(),900);},1200);setTimeout(()=>document.querySelector('#hint').style.opacity='0',6500);
+</script>
+</body>
+</html>
