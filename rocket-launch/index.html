@@ -1,62 +1,69 @@
 <!doctype html>
-<html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Erfan Space 3D Launch</title>
-
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Erfan Space — Mountain Launch</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#030916;color:#eff8ff;font-family:Tahoma,Arial,sans-serif;overflow:hidden}
-#world{height:100vh;min-height:600px;position:relative;overflow:hidden;background:#07152a}
-#back{position:absolute;inset:0;background:linear-gradient(180deg,#192b43 0%,#65717b 43%,#b2a28b 72%,#222a30 100%);transition:filter 1s}
-#back.space{filter:brightness(.72) saturate(.7)}
-header{position:absolute;z-index:10;top:16px;left:20px;right:20px;display:flex;justify-content:space-between;align-items:center}
-.logo{font-size:22px;font-weight:900;text-shadow:0 2px 12px #000}.logo span{color:#65dcff}.tag{font-size:11px;background:#061426c9;border:1px solid #a4eaff44;padding:10px 14px;border-radius:30px}
-#rocket{position:absolute;z-index:4;left:50%;bottom:10%;width:min(36vw,360px);height:min(68vh,620px);transform:translateX(-50%);transition:bottom 13s cubic-bezier(.16,.7,.25,1);filter:drop-shadow(0 15px 22px #0009)}
-
-#iran-flag{position:absolute;z-index:6;top:42%;right:25%;width:44px;height:27px;border:1px solid #ffffff99;border-radius:2px;box-shadow:0 2px 8px #0009;transform:perspective(80px) rotateY(-12deg);overflow:hidden;pointer-events:none}
-#iran-flag i{display:block;height:33.333%;width:100%}#iran-flag i:nth-child(1){background:#239f40}#iran-flag i:nth-child(2){background:#fff;position:relative}#iran-flag i:nth-child(3){background:#da0000}#iran-flag svg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:12px;height:12px}
-#launch-video{display:inline-flex;align-items:center;gap:5px;background:#7b1d1d;border-color:#ffb1a866}
-#pressure{position:absolute;z-index:3;left:50%;bottom:8%;width:0;height:0;transform:translateX(-50%);border-radius:50%;background:radial-gradient(ellipse,#fff9 0%,#d5e1e866 28%,#8fa4b344 55%,transparent 72%);filter:blur(9px);opacity:0}
-#pressure.on{animation:pressure 4s ease-out forwards}
-@keyframes pressure{0%{width:5vw;height:3vh;opacity:.9}100%{width:95vw;height:46vh;opacity:0}}
-#flame:after{content:'';position:absolute;inset:8% 30%;background:linear-gradient(#fff,#fff4a6 25%,#ff8b18 68%,transparent);filter:blur(7px);border-radius:50%}
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#07111d;color:#eef6ff;font-family:Tahoma,Arial,sans-serif;overflow:hidden}
+#scene{height:100svh;min-height:560px;position:relative;isolation:isolate;overflow:hidden;background:#17283a}
+#landscape{position:absolute;inset:0;z-index:-5;background-image:linear-gradient(180deg,#08152566 0%,#0a172544 42%,#101923aa 100%),url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2400&q=90');background-position:center 52%;background-size:cover;transform:scale(1.04);transition:filter 5s}
+#landscape.space{filter:brightness(.55) saturate(.65)}
+#vignette{position:absolute;inset:0;z-index:-3;background:radial-gradient(ellipse at 50% 55%,transparent 20%,#020711a8 100%),linear-gradient(0deg,#07111df2 0%,transparent 48%)}
+#clouds{position:absolute;inset:0;z-index:-2;background:linear-gradient(170deg,transparent 40%,#d5e0e322 57%,transparent 72%);filter:blur(18px);animation:cloud 24s linear infinite}
+@keyframes cloud{to{transform:translateX(-9%)}}
+header{position:absolute;top:18px;left:22px;right:22px;display:flex;align-items:center;justify-content:space-between;z-index:20}.brand{font-weight:900;font-size:20px;letter-spacing:1px;text-shadow:0 2px 12px #000}.brand span{color:#7ce4ff}.pill{font-size:11px;padding:9px 13px;border:1px solid #ffffff40;border-radius:30px;background:#071522aa;backdrop-filter:blur(8px)}
+#weather{position:absolute;top:84px;left:22px;z-index:10;background:#081522a8;border:1px solid #ffffff26;padding:10px 13px;border-radius:12px;font-size:11px;line-height:1.8}
+#mountain-label{position:absolute;top:22%;left:50%;transform:translateX(-50%);font-size:12px;color:#e4efff;text-shadow:0 2px 8px #000;white-space:nowrap}
+#base{position:absolute;bottom:9%;left:50%;transform:translateX(-50%);width:min(680px,90vw);height:90px;background:linear-gradient(180deg,#56616a,#1a252e);clip-path:polygon(8% 0,92% 0,100% 100%,0 100%);box-shadow:0 0 40px #000}
+#base:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 55px,#aebbc522 56px 58px)}
+#hangar{position:absolute;bottom:calc(9% + 55px);left:calc(50% - min(320px,43vw));width:120px;height:76px;background:linear-gradient(135deg,#59656d,#202a32);clip-path:polygon(0 35%,50% 0,100% 35%,100% 100%,0 100%);filter:drop-shadow(0 8px 10px #000)}
+#hangar:after{content:"";position:absolute;bottom:0;left:32%;width:36%;height:45px;background:#101820;border:2px solid #89949a}
+#pad{position:absolute;bottom:calc(9% + 85px);left:50%;transform:translateX(-50%);width:170px;height:15px;background:linear-gradient(#b7c2c9,#46535e);border-radius:50%;box-shadow:0 0 25px #000}
+#rocket{position:absolute;z-index:5;bottom:calc(9% + 98px);left:50%;width:78px;height:330px;transform:translateX(-50%);filter:drop-shadow(0 8px 15px #000c);transition:bottom 18s cubic-bezier(.15,.68,.22,1)}
+#rocket .body{position:absolute;left:21px;top:65px;width:36px;height:235px;border-radius:48% 48% 12% 12%;background:linear-gradient(90deg,#56616a 0%,#e0e5e8 22%,#fff 50%,#aab5bc 82%,#4a555e 100%);border:1px solid #dce5e8}
+#rocket .nose{position:absolute;top:0;left:21px;width:36px;height:75px;background:linear-gradient(90deg,#4d5961,#e9eef1 46%,#707d86);clip-path:polygon(50% 0,100% 100%,0 100%)}
+#rocket .stripe{position:absolute;top:118px;left:21px;width:36px;height:22px;background:linear-gradient(90deg,#b00022,#f7f7f7 50%,#239f40)}
+#rocket .fin{position:absolute;bottom:23px;width:26px;height:65px;background:linear-gradient(90deg,#35414a,#aab5bc);clip-path:polygon(100% 0,100% 100%,0 100%,35% 35%)}
+#rocket .fin.l{left:0}#rocket .fin.r{right:0;transform:scaleX(-1)}
+#flag{position:absolute;top:151px;left:29px;width:22px;height:14px;z-index:7;box-shadow:0 1px 5px #000}.flagstripe{height:33.33%}#flag .g{background:#239f40}#flag .w{background:#fff}#flag .r{background:#da0000}
+#flame{position:absolute;z-index:4;left:50%;bottom:calc(9% + 30px);width:52px;height:0;transform:translateX(-50%);opacity:0;background:linear-gradient(#fff,#fff4a3 18%,#ffad24 55%,#ed3c08 82%,transparent);clip-path:polygon(18% 0,82% 0,100% 100%,50% 76%,0 100%);filter:blur(3px)}
+#flame.on{height:260px;opacity:1;animation:flicker .11s infinite alternate}
+@keyframes flicker{to{transform:translateX(-50%) scaleX(1.35);height:290px}}
+#smoke{position:absolute;z-index:3;left:50%;bottom:7%;width:0;height:0;transform:translateX(-50%);border-radius:50%;background:radial-gradient(ellipse,#d5dce0c9,#8c9ba488 38%,transparent 72%);filter:blur(14px)}
+#smoke.on{width:min(90vw,900px);height:42vh;animation:billow 3s ease-in-out infinite alternate}
+@keyframes billow{to{transform:translateX(-50%) scale(1.12);opacity:.7}}
+#shock{position:absolute;z-index:2;left:50%;bottom:9%;width:0;height:0;transform:translateX(-50%);border:2px solid #d8e7f7aa;border-radius:50%;opacity:0}
+#shock.on{animation:shock 3.5s ease-out 1}
+@keyframes shock{0%{width:4px;height:4px;opacity:.8}100%{width:100vw;height:45vh;opacity:0}}
+#rain{position:absolute;inset:-30% 0 0;z-index:8;pointer-events:none;opacity:.48;background-image:repeating-linear-gradient(105deg,transparent 0 24px,#d8e8ff55 25px,#d8e8ff55 26px,transparent 27px 48px);background-size:100% 100%;animation:rain .45s linear infinite}
+@keyframes rain{to{transform:translateY(50px)}}
+#count{display:none;position:absolute;z-index:18;top:28%;left:50%;transform:translateX(-50%);font-size:clamp(65px,12vw,125px);font-weight:900;color:white;text-shadow:0 0 35px #75dfff}
+#caption{position:absolute;z-index:12;top:17%;left:50%;transform:translateX(-50%);font-size:14px;text-shadow:0 2px 10px #000;white-space:nowrap}
+.panel{position:absolute;z-index:20;right:18px;bottom:18px;width:min(340px,calc(100% - 36px));padding:16px;border:1px solid #c4e9ff44;border-radius:18px;background:#061321df;backdrop-filter:blur(15px);box-shadow:0 12px 40px #0007}
+h2{margin:0 0 12px;color:#86e8ff;font-size:16px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stat{padding:9px;background:#ffffff0c;border-radius:10px}.stat small{display:block;color:#a7bbce;font-size:10px;margin-bottom:5px}.stat b{font-size:15px}
+.actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}button{cursor:pointer;border:1px solid #91dfff66;background:#143653;color:#fff;border-radius:10px;padding:10px 13px;font:inherit;font-size:11px}button.primary{background:linear-gradient(120deg,#087da6,#10a9bb);border:0;font-weight:bold}.note{font-size:9px;color:#a8bdcf;line-height:1.7;margin:11px 0 0}
 #rocket.launching{bottom:125%}
-#tower{position:absolute;z-index:3;left:calc(50% + min(13vw,130px));bottom:10%;width:9%;height:54%;border-left:8px solid #778b9a;border-right:8px solid #778b9a;background:repeating-linear-gradient(0deg,transparent 0 30px,#8194a455 31px 34px),linear-gradient(90deg,transparent 45%,#93a8b855 46% 52%,transparent 53%);clip-path:polygon(22% 0,78% 0,100% 100%,0 100%);opacity:.9}
-#pad{position:absolute;z-index:2;bottom:7%;left:50%;transform:translateX(-50%);width:min(55vw,560px);height:28px;background:linear-gradient(#b5c2cc,#4b5967);border-radius:50%;box-shadow:0 15px 45px #000}
-#flame{position:absolute;z-index:3;left:50%;bottom:12%;transform:translateX(-50%);width:90px;height:0;opacity:0;background:linear-gradient(#fff8ba,#ffb52d 25%,#ff5c16 65%,transparent);clip-path:polygon(25% 0,75% 0,100% 100%,50% 75%,0 100%);filter:blur(5px)}
-#flame.on{height:230px;opacity:1;animation:flicker .12s infinite alternate}
-@keyframes flicker{from{transform:translateX(-50%) scaleX(.8)}to{transform:translateX(-50%) scaleX(1.18)}}
-#smoke{position:absolute;z-index:2;bottom:7%;left:50%;width:0;height:0;border-radius:50%;background:radial-gradient(ellipse,#c7d0d6aa,transparent 68%);filter:blur(12px);transition:all 4s}
-#smoke.on{width:65vw;height:30vh;transform:translateX(-50%)}
-.panel{position:absolute;z-index:11;right:18px;bottom:18px;width:min(330px,calc(100% - 36px));padding:15px;background:#061426e8;border:1px solid #8ce6ff44;border-radius:17px;backdrop-filter:blur(12px)}
-h2{margin:0 0 12px;color:#7de4ff;font-size:16px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stat{background:#ffffff0c;padding:9px;border-radius:10px}.stat small{display:block;color:#9cb5ca;font-size:10px;margin-bottom:5px}.stat b{font-size:16px}
-.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}button,.download{cursor:pointer;border:1px solid #72dfff66;background:#113653;color:white;border-radius:10px;padding:10px 12px;font:inherit;font-size:11px;text-decoration:none}button.primary{background:linear-gradient(120deg,#087ba5,#10aabd);border:0;font-weight:bold}
-#count{position:absolute;z-index:12;top:25%;left:50%;transform:translateX(-50%);font-size:clamp(55px,10vw,110px);font-weight:900;color:#fff;text-shadow:0 0 35px #6bdfff;display:none}
-.note{font-size:9px;color:#9bb2c7;line-height:1.6;margin:10px 0 0}
-#caption{position:absolute;z-index:9;top:17%;left:50%;transform:translateX(-50%);font-size:13px;color:#fff;text-shadow:0 2px 8px #000;white-space:nowrap}
-@media(max-width:650px){header{top:10px;left:12px;right:12px}.tag{display:none}#rocket{width:60vw;height:58vh;bottom:13%}#rocket.launching{bottom:125%}#tower{left:calc(50% + 21vw);height:42%}.panel{bottom:9px;right:9px}.note{display:none}#caption{top:14%;font-size:11px}}
-
-#mountains{position:absolute;inset:25% 0 0;z-index:1;background:linear-gradient(145deg,transparent 0 15%,#263541 15.2% 31%,transparent 31.2%),linear-gradient(35deg,transparent 0 22%,#3c4b54 22.2% 42%,transparent 42.2%),linear-gradient(150deg,transparent 0 40%,#202d38 40.2% 65%,transparent 65.2%);clip-path:polygon(0 28%,10% 15%,18% 32%,31% 0,43% 34%,58% 8%,70% 38%,83% 10%,100% 32%,100% 100%,0 100%);opacity:.96}
-#ridge{position:absolute;z-index:2;bottom:8%;left:0;right:0;height:27%;background:linear-gradient(170deg,#414b4e,#20292c 70%);clip-path:polygon(0 36%,14% 15%,28% 40%,42% 12%,58% 38%,72% 10%,87% 34%,100% 14%,100% 100%,0 100%)}
-#bunker{position:absolute;z-index:3;bottom:8%;left:calc(50% - 260px);width:170px;height:100px;background:linear-gradient(90deg,#303a3c,#727b76);clip-path:polygon(0 35%,18% 0,82% 0,100% 35%,100% 100%,0 100%);border-top:5px solid #9ca69f}
-#bunker:after{content:"";position:absolute;left:35%;top:35%;width:30%;height:65%;background:#101a20;border:3px solid #9ca69f}
-#rocket{width:110px;height:390px}
-#rocket.launching{bottom:125%}
-@media(max-width:650px){#rocket{width:90px;height:330px;bottom:13%}#rocket.launching{bottom:125%}}
-
-</style></head><body>
-<section id="world"><div id="back"></div><header><div class="logo">ERFAN <span>SPACE 3D</span></div><div class="tag">MOUNTAIN DEFENSE BASE · FICTIONAL SCENE</div></header>
-<div id="caption">پایگاه کوهستانی · موشک نظامی خیالی</div><div id="count">10</div>
-<div id="mountains"></div><div id="ridge"></div><div id="bunker"></div><div id="tower"></div><div id="pad"></div><div id="smoke"></div><div id="pressure"></div><div id="flame"></div>
-<div id="rocket"><div id="missile"><div class="nose"></div><div class="body"></div><div class="band"></div><div class="fin left"></div><div class="fin right"></div></div><div id="iran-flag" title="پرچم ایران"><i></i><i><svg viewBox="0 0 100 100" aria-hidden="true"><path fill="#da0000" d="M50 5 59 35 91 35 65 54 75 86 50 66 25 86 35 54 9 35 41 35Z"/></svg></i><i></i></div></div>
-<section class="panel"><h2>کنترل پایگاه کوهستانی</h2><div class="stats">
-<div class="stat"><small>ارتفاع نمایشی</small><b id="alt">۰ km</b></div><div class="stat"><small>سرعت نمایشی</small><b id="speed">۰ km/h</b></div>
-<div class="stat"><small>زمان مأموریت</small><b id="timer">00:00</b></div><div class="stat"><small>وضعیت</small><b id="status">آماده</b></div></div>
-<div class="actions"><button class="primary" id="launch">🚀 شروع پرتاب</button><button id="pause">Ⅱ مکث</button><button id="reset">↻ بازنشانی</button></div>
-<p class="note">این یک صحنهٔ نمایشی و خیالی از پایگاه کوهستانی و موشک نظامی غیرواقعی است. پرچم ایران یک نشان تصویری است. شعله، دود، موج فشار و حرکت کاملاً گرافیکی‌اند و اعداد ارتفاع و سرعت صرفاً نمایشی هستند.</p></section></section>
+@media(max-width:650px){header{top:11px;left:12px;right:12px}.pill{display:none}#weather{top:58px;left:12px}#caption{top:15%;font-size:11px}.panel{right:9px;bottom:9px;padding:12px}.note{font-size:8px}#rocket{transform:translateX(-50%) scale(.82);transform-origin:bottom center}#rocket.launching{bottom:125%}}
+</style></head>
+<body><main id="scene">
+<div id="landscape"></div><div id="clouds"></div><div id="vignette"></div><div id="rain"></div>
+<header><div class="brand">ERFAN <span>SPACE</span></div><div class="pill">MOUNTAIN LAUNCH · VISUAL SIMULATION</div></header>
+<div id="weather">🌧 نمای بارانی کوهستان<br>🌫 مه و ابرهای متحرک</div>
+<div id="mountain-label">چشم‌انداز کوهستانی واقعی · تصویر پس‌زمینه</div><div id="caption">پایگاه نمایشی کوهستانی · صحنهٔ داستانی</div><div id="count">10</div>
+<div id="hangar"></div><div id="base"></div><div id="pad"></div>
+<div id="rocket"><div class="nose"></div><div class="body"></div><div class="stripe"></div><div class="fin l"></div><div class="fin r"></div><div id="flag"><div class="flagstripe g"></div><div class="flagstripe w"></div><div class="flagstripe r"></div></div></div>
+<div id="flame"></div><div id="smoke"></div><div id="shock"></div>
+<section class="panel"><h2>🚀 شبیه‌ساز پرتاب Erfan</h2><div class="stats">
+<div class="stat"><small>ارتفاع انیمیشن</small><b id="alt">۰ km</b></div><div class="stat"><small>سرعت نمایشی</small><b id="speed">۰ km/h</b></div>
+<div class="stat"><small>زمان صحنه</small><b id="timer">00:00</b></div><div class="stat"><small>وضعیت</small><b id="status">آماده</b></div></div>
+<div class="actions"><button class="primary" id="launch">🚀 شروع شمارش معکوس</button><button id="pause">Ⅱ مکث</button><button id="reset">↻ شروع دوباره</button></div>
+<p class="note">این صحنه یک شبیه‌سازی سینمایی و خیالی است؛ موشک، پایگاه و پرتاب واقعی یا عملیاتی نیستند. تصویر کوهستان یک عکس واقعیِ پس‌زمینه است؛ باران، دود، شعله و موج فشار جلوه‌های گرافیکی‌اند. اعداد ارتفاع و سرعت ساختگی و صرفاً برای نمایش انیمیشن هستند.</p></section>
+</main>
 <script>
-(()=>{const $=id=>document.getElementById(id);let count=null,tick=null,elapsed=0,startAt=0,paused=false,flight=false;
-$('launch').onclick=()=>{if(flight||count)return;let n=10;$('status').textContent='شمارش معکوس';$('count').style.display='block';$('count').textContent=n;count=setInterval(()=>{n--;$('count').textContent=n>0?n:'LIFTOFF';if(n<=0){clearInterval(count);count=null;$('count').style.display='none';flight=true;elapsed=0;startAt=Date.now();$('status').textContent='در حال پرواز';$('caption').textContent='پرتاب نمایشی از پایگاه کوهستانی';$('rocket').classList.add('launching');$('flame').classList.add('on');$('smoke').classList.add('on');$('pressure').classList.add('on');$('back').classList.add('space');tick=setInterval(update,250)}},1000)};
-function update(){if(paused)return;elapsed=(Date.now()-startAt)/1000;$('timer').textContent='00:'+String(Math.floor(elapsed)).padStart(2,'0');$('alt').textContent=Math.min(160,Math.floor(elapsed*8))+' km';$('speed').textContent=Math.min(28000,Math.floor(elapsed*850)).toLocaleString('en-US')+' km/h';if(elapsed>12){$('status').textContent='در مسیر فضا';$('caption').textContent='موشک از قاب کوهستان خارج می‌شود'}if(elapsed>24){clearInterval(tick);tick=null;$('status').textContent='در پایان پرواز نمایشی';$('caption').textContent='پایان انیمیشن پرتاب نمایشی'}}
-$('pause').onclick=()=>{if(!flight)return;paused=!paused;$('pause').textContent=paused?'▶ ادامه':'Ⅱ مکث';$('status').textContent=paused?'مکث':'در حال پرواز';if(!paused)startAt=Date.now()-elapsed*1000};
-$('reset').onclick=()=>{clearInterval(count);clearInterval(tick);count=tick=null;flight=false;paused=false;elapsed=0;$('rocket').classList.remove('launching');$('flame').classList.remove('on');$('smoke').classList.remove('on');$('pressure').classList.remove('on');$('back').classList.remove('space');$('count').style.display='none';$('timer').textContent='00:00';$('alt').textContent='۰ km';$('speed').textContent='۰ km/h';$('status').textContent='آماده';$('caption').textContent='پایگاه کوهستانی · موشک نظامی خیالی';$('pause').textContent='Ⅱ مکث'};
+(()=>{const $=id=>document.getElementById(id);let countdown=null,loop=null,elapsed=0,started=0,paused=false,active=false;
+function update(){if(paused||!active)return;elapsed=(Date.now()-started)/1000;$('timer').textContent='00:'+String(Math.floor(elapsed)).padStart(2,'0');$('alt').textContent=Math.min(180,Math.floor(elapsed*7.5))+' km';$('speed').textContent=Math.min(26000,Math.floor(elapsed*720)).toLocaleString('en-US')+' km/h';if(elapsed>12){$('status').textContent='در ارتفاع بالا';$('caption').textContent='حرکت نمایشی به سوی آسمان'}if(elapsed>25){clearInterval(loop);loop=null;$('status').textContent='پایان صحنه';$('caption').textContent='پایان انیمیشن پرتاب'}} 
+$('launch').onclick=()=>{if(active||countdown)return;let n=10;$('count').style.display='block';$('count').textContent=n;$('status').textContent='شمارش معکوس';countdown=setInterval(()=>{n--;$('count').textContent=n>0?n:'LIFTOFF';if(n<=0){clearInterval(countdown);countdown=null;$('count').style.display='none';active=true;elapsed=0;started=Date.now();$('status').textContent='در حال پرواز';$('rocket').classList.add('launching');$('flame').classList.add('on');$('smoke').classList.add('on');$('shock').classList.add('on');$('landscape').classList.add('space');loop=setInterval(update,200)}},1000)};
+$('pause').onclick=()=>{if(!active)return;paused=!paused;$('pause').textContent=paused?'▶ ادامه':'Ⅱ مکث';$('status').textContent=paused?'مکث':'در حال پرواز';if(!paused)started=Date.now()-elapsed*1000};
+$('reset').onclick=()=>{clearInterval(countdown);clearInterval(loop);countdown=loop=null;active=false;paused=false;elapsed=0;$('rocket').classList.remove('launching');['flame','smoke','shock'].forEach(id=>$(id).classList.remove('on'));$('landscape').classList.remove('space');$('count').style.display='none';$('timer').textContent='00:00';$('alt').textContent='۰ km';$('speed').textContent='۰ km/h';$('status').textContent='آماده';$('caption').textContent='پایگاه نمایشی کوهستانی · صحنهٔ داستانی';$('pause').textContent='Ⅱ مکث'};
 })();
 </script></body></html>
