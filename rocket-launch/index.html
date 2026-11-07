@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Erfan Space 3D Launch</title>
-<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+
 <style>
 *{box-sizing:border-box}body{margin:0;background:#030916;color:#eff8ff;font-family:Tahoma,Arial,sans-serif;overflow:hidden}
 #world{height:100vh;min-height:600px;position:relative;overflow:hidden;background:#07152a}
@@ -35,18 +35,18 @@ h2{margin:0 0 12px;color:#7de4ff;font-size:16px}.stats{display:grid;grid-templat
 @media(max-width:650px){header{top:10px;left:12px;right:12px}.tag{display:none}#rocket{width:60vw;height:58vh;bottom:13%}#rocket.launching{bottom:125%}#tower{left:calc(50% + 21vw);height:42%}.panel{bottom:9px;right:9px}.note{display:none}#caption{top:14%;font-size:11px}}
 </style></head><body>
 <section id="world"><div id="back"></div><header><div class="logo">ERFAN <span>SPACE 3D</span></div><div class="tag">MOUNTAIN DEFENSE BASE · FICTIONAL SCENE</div></header>
-<div id="caption">نمای سه‌بعدی موشک واقعی Saturn V از مجموعه ناسا</div><div id="count">10</div>
-<div id="tower"></div><div id="pad"></div><div id="smoke"></div><div id="pressure"></div><div id="flame"></div>
+<div id="caption">پایگاه کوهستانی · موشک نظامی خیالی</div><div id="count">10</div>
+<div id="mountains"></div><div id="ridge"></div><div id="bunker"></div><div id="tower"></div><div id="pad"></div><div id="smoke"></div><div id="pressure"></div><div id="flame"></div>
 <div id="rocket"><div id="missile"><div class="nose"></div><div class="body"></div><div class="band"></div><div class="fin left"></div><div class="fin right"></div></div><div id="iran-flag" title="پرچم ایران"><i></i><i><svg viewBox="0 0 100 100" aria-hidden="true"><path fill="#da0000" d="M50 5 59 35 91 35 65 54 75 86 50 66 25 86 35 54 9 35 41 35Z"/></svg></i><i></i></div></div>
-<section class="panel"><h2>کنترل پرتاب سه‌بعدی</h2><div class="stats">
+<section class="panel"><h2>کنترل پایگاه کوهستانی</h2><div class="stats">
 <div class="stat"><small>ارتفاع نمایشی</small><b id="alt">۰ km</b></div><div class="stat"><small>سرعت نمایشی</small><b id="speed">۰ km/h</b></div>
 <div class="stat"><small>زمان مأموریت</small><b id="timer">00:00</b></div><div class="stat"><small>وضعیت</small><b id="status">آماده</b></div></div>
 <div class="actions"><button class="primary" id="launch">🚀 شروع پرتاب</button><button id="pause">Ⅱ مکث</button><button id="reset">↻ بازنشانی</button></div>
-<p class="note">مدل سه‌بعدی Saturn V از ناسا؛ پرچم ایران به‌صورت نشان تصویری روی بدنه افزوده شده است. شعله، دود و حرکت در این صفحه بازسازی گرافیکی‌اند، نه آتش واقعی. برای دیدن آتش و پرتاب واقعی، دکمهٔ «فیلم واقعی پرتاب ناسا» را بزن. اعداد ارتفاع و سرعت این نسخه نمایشی‌اند.</p></section></section>
+<p class="note">این یک صحنهٔ نمایشی و خیالی از پایگاه کوهستانی و موشک نظامی غیرواقعی است. پرچم ایران یک نشان تصویری است. شعله، دود، موج فشار و حرکت کاملاً گرافیکی‌اند و اعداد ارتفاع و سرعت صرفاً نمایشی هستند.</p></section></section>
 <script>
 (()=>{const $=id=>document.getElementById(id);let count=null,tick=null,elapsed=0,startAt=0,paused=false,flight=false;
-$('launch').onclick=()=>{if(flight||count)return;let n=10;$('status').textContent='شمارش معکوس';$('count').style.display='block';$('count').textContent=n;count=setInterval(()=>{n--;$('count').textContent=n>0?n:'LIFTOFF';if(n<=0){clearInterval(count);count=null;$('count').style.display='none';flight=true;elapsed=0;startAt=Date.now();$('status').textContent='در حال پرواز';$('caption').textContent='پرتاب! موشک در حال ترک سکوی زمینی است';$('rocket').classList.add('launching');$('flame').classList.add('on');$('smoke').classList.add('on');$('pressure').classList.add('on');$('back').classList.add('space');tick=setInterval(update,250)}},1000)};
-function update(){if(paused)return;elapsed=(Date.now()-startAt)/1000;$('timer').textContent='00:'+String(Math.floor(elapsed)).padStart(2,'0');$('alt').textContent=Math.min(160,Math.floor(elapsed*8))+' km';$('speed').textContent=Math.min(28000,Math.floor(elapsed*850)).toLocaleString('en-US')+' km/h';if(elapsed>12){$('status').textContent='در مسیر فضا';$('caption').textContent='موشک از جوّ عبور می‌کند · نمای زمین از فضا'}if(elapsed>24){clearInterval(tick);tick=null;$('status').textContent='در مدار نمایشی';$('caption').textContent='پایان انیمیشن پرتاب · نمای زمین از فضا'}}
+$('launch').onclick=()=>{if(flight||count)return;let n=10;$('status').textContent='شمارش معکوس';$('count').style.display='block';$('count').textContent=n;count=setInterval(()=>{n--;$('count').textContent=n>0?n:'LIFTOFF';if(n<=0){clearInterval(count);count=null;$('count').style.display='none';flight=true;elapsed=0;startAt=Date.now();$('status').textContent='در حال پرواز';$('caption').textContent='پرتاب نمایشی از پایگاه کوهستانی';$('rocket').classList.add('launching');$('flame').classList.add('on');$('smoke').classList.add('on');$('pressure').classList.add('on');$('back').classList.add('space');tick=setInterval(update,250)}},1000)};
+function update(){if(paused)return;elapsed=(Date.now()-startAt)/1000;$('timer').textContent='00:'+String(Math.floor(elapsed)).padStart(2,'0');$('alt').textContent=Math.min(160,Math.floor(elapsed*8))+' km';$('speed').textContent=Math.min(28000,Math.floor(elapsed*850)).toLocaleString('en-US')+' km/h';if(elapsed>12){$('status').textContent='در مسیر فضا';$('caption').textContent='موشک از قاب کوهستان خارج می‌شود'}if(elapsed>24){clearInterval(tick);tick=null;$('status').textContent='در پایان پرواز نمایشی';$('caption').textContent='پایان انیمیشن پرتاب نمایشی'}}
 $('pause').onclick=()=>{if(!flight)return;paused=!paused;$('pause').textContent=paused?'▶ ادامه':'Ⅱ مکث';$('status').textContent=paused?'مکث':'در حال پرواز';if(!paused)startAt=Date.now()-elapsed*1000};
 $('reset').onclick=()=>{clearInterval(count);clearInterval(tick);count=tick=null;flight=false;paused=false;elapsed=0;$('rocket').classList.remove('launching');$('flame').classList.remove('on');$('smoke').classList.remove('on');$('pressure').classList.remove('on');$('back').classList.remove('space');$('count').style.display='none';$('timer').textContent='00:00';$('alt').textContent='۰ km';$('speed').textContent='۰ km/h';$('status').textContent='آماده';$('caption').textContent='نمای سه‌بعدی موشک واقعی Saturn V از مجموعه ناسا';$('pause').textContent='Ⅱ مکث'};
 })();
