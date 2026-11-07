@@ -1,60 +1,47 @@
 <!doctype html>
-<html lang="fa" dir="rtl">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Erfan Rocket Launch | سفر به فضا</title>
+<html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Erfan Space Mission</title>
 <style>
-:root{color-scheme:dark;--cyan:#72e5ff;--panel:#0b1830e8}*{box-sizing:border-box}
-body{margin:0;background:#030712;color:#edf7ff;font-family:Tahoma,Arial,sans-serif;overflow:hidden}
-#scene{position:fixed;inset:0;width:100%;height:100%;display:block}
-.top{position:fixed;top:18px;right:20px;left:20px;display:flex;justify-content:space-between;align-items:center;gap:12px;pointer-events:none}
-.brand{font-size:clamp(17px,3vw,25px);font-weight:800;text-shadow:0 2px 15px #000}.brand span{color:var(--cyan)}
-.pill,.panel{background:var(--panel);border:1px solid #8bdfff38;backdrop-filter:blur(12px);border-radius:16px}
-.pill{padding:10px 14px;font-size:12px;color:#bcecff}
-.panel{position:fixed;bottom:18px;right:18px;width:min(330px,calc(100vw - 36px));padding:16px;box-shadow:0 12px 45px #0008}
-h2{font-size:16px;margin:0 0 12px;color:var(--cyan)}.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.stat{background:#ffffff0b;border-radius:11px;padding:10px}.stat small{display:block;color:#9db4ca;font-size:11px;margin-bottom:5px}.stat b{font-size:18px}
-.actions{display:flex;gap:8px;margin-top:13px;flex-wrap:wrap}
-button{border:1px solid #74dfff55;background:#12334c;color:#eafaff;border-radius:10px;padding:11px 13px;font:inherit;font-size:12px;cursor:pointer}
-button.primary{background:linear-gradient(120deg,#087ba5,#12a9bd);color:white;font-weight:bold}button:disabled{opacity:.5}
-.hint{color:#94abc0;font-size:10px;line-height:1.7;margin:11px 0 0}
-#count{position:fixed;top:23%;left:50%;transform:translateX(-50%);font-size:clamp(45px,9vw,90px);font-weight:900;color:white;text-shadow:0 0 30px #5bdcff;opacity:0;pointer-events:none}
-#caption{position:fixed;top:39%;left:50%;transform:translateX(-50%);font-size:13px;color:#c8eaff;text-shadow:0 2px 8px #000;white-space:nowrap}
-@media(max-width:600px){.top{top:10px;right:12px;left:12px}.panel{bottom:10px;right:10px}.pill{font-size:10px;padding:8px}}
-</style></head>
-<body>
-<canvas id="scene"></canvas>
-<div class="top"><div class="brand">ERFAN <span>SPACE</span> · مأموریت پرتاب</div><div class="pill">شبیه‌ساز آموزشی سه‌بعدی‌نما</div></div>
-<div id="count">10</div><div id="caption">موشک آمادهٔ پرتاب است</div>
-<section class="panel"><h2>کنترل مأموریت</h2><div class="stats">
-<div class="stat"><small>ارتفاع شبیه‌سازی‌شده</small><b id="alt">۰ km</b></div>
-<div class="stat"><small>سرعت شبیه‌سازی‌شده</small><b id="speed">۰ km/h</b></div>
-<div class="stat"><small>زمان مأموریت</small><b id="time">00:00</b></div>
-<div class="stat"><small>وضعیت</small><b id="status">آماده</b></div></div>
-<div class="actions"><button class="primary" id="launch">🚀 شروع شمارش معکوس</button><button id="pause">Ⅱ مکث</button><button id="reset">↻ شروع دوباره</button></div>
-<p class="hint">این یک شبیه‌ساز نمایشی است؛ اعداد ارتفاع و سرعت برای سرگرمی محاسبه می‌شوند و دادهٔ واقعی پرواز نیستند. برای بهترین تجربه، صفحه را تمام‌صفحه کن.</p></section>
+*{box-sizing:border-box}body{margin:0;background:#020611;color:#f2f8ff;font-family:Tahoma,Arial,sans-serif;min-height:100vh}
+.hero{height:100vh;min-height:650px;position:relative;overflow:hidden;background:#020611}
+.photo{position:absolute;inset:0;background-size:cover;background-position:center;transition:background-image 1s,transform 12s;transform:scale(1.04)}
+.photo:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#020611aa,#02061125 55%,#020611bb),linear-gradient(0deg,#020611 0%,transparent 65%)}
+header{position:absolute;z-index:2;top:0;left:0;right:0;padding:22px 5%;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:22px;font-weight:900;letter-spacing:1px}.logo span{color:#63d9ff}.tag{border:1px solid #ffffff44;background:#06142699;padding:10px 15px;border-radius:30px;font-size:12px}
+main{position:absolute;z-index:2;top:22%;right:7%;width:min(570px,86%)}.eyebrow{color:#7ce2ff;letter-spacing:3px;font-size:12px}
+h1{font-size:clamp(34px,6vw,68px);line-height:1.15;margin:16px 0;text-shadow:0 5px 25px #000}.desc{color:#d2e0ef;line-height:2;font-size:14px;max-width:480px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin:25px 0}button{cursor:pointer;border:1px solid #8ce8ff88;border-radius:12px;padding:13px 18px;background:#0b2945d9;color:white;font:inherit;font-size:13px}button.primary{background:linear-gradient(120deg,#0784b7,#10b7cb);border:0;font-weight:bold}
+.metrics{display:flex;gap:10px;flex-wrap:wrap}.metric{background:#06182bd9;border:1px solid #b3eaff30;padding:12px 16px;border-radius:12px;min-width:112px}.metric small{display:block;color:#9db7cb;font-size:10px;margin-bottom:6px}.metric b{font-size:18px}
+#count{font-size:clamp(65px,12vw,130px);font-weight:900;color:white;text-shadow:0 0 40px #56dfff;position:absolute;z-index:3;top:38%;left:50%;transform:translate(-50%,-50%);display:none}
+footer{position:absolute;z-index:2;bottom:18px;left:5%;right:5%;display:flex;justify-content:space-between;align-items:end;gap:12px;color:#b4c9db;font-size:10px}
+.gallery{display:flex;gap:8px}.thumb{width:76px;height:48px;border-radius:7px;border:1px solid #ffffff55;background-size:cover;background-position:center;cursor:pointer}
+.caption{max-width:390px;line-height:1.7;text-align:left}
+@media(max-width:650px){.hero{min-height:720px}header{padding:16px}.tag{display:none}main{top:18%;right:6%;width:88%}footer{bottom:12px;display:block}.gallery{margin-top:10px}.caption{text-align:right}}
+</style></head><body>
+<section class="hero"><div class="photo" id="photo"></div>
+<header><div class="logo">ERFAN <span>SPACE</span></div><div class="tag">REAL NASA PHOTOGRAPHY · SPACE MISSION SIMULATOR</div></header>
+<div id="count">10</div>
+<main><div class="eyebrow">MISSION CONTROL / ARTEMIS-INSPIRED</div><h1>سفر به<br>فضای بی‌کران</h1>
+<p class="desc" id="desc">تجربهٔ تصویری پرتاب یک موشک فضایی با عکس‌های واقعی ناسا. شمارش معکوس را آغاز کن و مراحل مأموریت را قدم‌به‌قدم ببین.</p>
+<div class="controls"><button class="primary" id="launch">🚀 آغاز شمارش معکوس</button><button id="next">نمای بعدی ←</button><button id="reset">بازنشانی</button></div>
+<div class="metrics"><div class="metric"><small>زمان مأموریت</small><b id="timer">00:00</b></div><div class="metric"><small>ارتفاع نمایشی</small><b id="alt">۰ km</b></div><div class="metric"><small>وضعیت</small><b id="status">آماده</b></div></div></main>
+<footer><div class="caption" id="credit">عکس واقعی پرتاب موشک SLS در مأموریت آرتمیس ۲ · اعتبار تصویر: NASA</div>
+<div class="gallery"><div class="thumb" id="t0" title="پرتاب ناسا"></div><div class="thumb" id="t1" title="زمین از فضا"></div><div class="thumb" id="t2" title="زمین و ماه"></div></div></footer>
+</section>
 <script>
-(()=>{const c=document.getElementById('scene'),ctx=c.getContext('2d');let w,h,dpr,stars=[],t=0,launchAt=null,paused=false,pausedAt=0,raf=0,countTimer=null,mode='ready';
-const $=id=>document.getElementById(id);function resize(){dpr=Math.min(devicePixelRatio||1,2);w=innerWidth;h=innerHeight;c.width=w*dpr;c.height=h*dpr;c.style.width=w+'px';c.style.height=h+'px';ctx.setTransform(dpr,0,0,dpr,0,0);stars=Array.from({length:Math.floor(w*h/1800)},()=>({x:Math.random()*w,y:Math.random()*h*.78,r:Math.random()*1.5+.25,a:Math.random()*.7+.2,p:Math.random()*6.28}));}addEventListener('resize',resize);resize();
-function text(s,x,y,size,color,align='center'){ctx.fillStyle=color;ctx.font='bold '+size+'px Tahoma';ctx.textAlign=align;ctx.fillText(s,x,y)}
-function drawEarth(){let y=h*.88;let g=ctx.createLinearGradient(0,y-90,0,h);g.addColorStop(0,'#397eae');g.addColorStop(.25,'#153c68');g.addColorStop(1,'#071329');ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(w*.52,y+75,w*.83,Math.max(130,h*.34),0,Math.PI,Math.PI*2);ctx.fill();ctx.save();ctx.beginPath();ctx.ellipse(w*.52,y+75,w*.83,Math.max(130,h*.34),0,Math.PI,Math.PI*2);ctx.clip();for(let i=0;i<20;i++){let x=(i*173+t*2)%(w+180)-90,yy=y+Math.sin(i*2)*45;ctx.fillStyle=i%3?'#4d9b83':'#b1c88c';ctx.globalAlpha=.22;ctx.beginPath();ctx.ellipse(x,yy,35+i%5*10,12+i%4*5,i*.4,0,7);ctx.fill()}ctx.globalAlpha=1;ctx.restore();ctx.strokeStyle='#8adfff';ctx.lineWidth=3;ctx.shadowBlur=25;ctx.shadowColor='#42caff';ctx.beginPath();ctx.ellipse(w*.52,y+75,w*.83,Math.max(130,h*.34),0,Math.PI,Math.PI*2);ctx.stroke();ctx.shadowBlur=0}
-function rocket(x,y,scale){ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);ctx.shadowColor='#000';ctx.shadowBlur=12;
-ctx.fillStyle='#dce8ef';ctx.beginPath();ctx.moveTo(0,-112);ctx.bezierCurveTo(22,-88,20,-30,18,34);ctx.lineTo(-18,34);ctx.bezierCurveTo(-20,-30,-22,-88,0,-112);ctx.fill();
-ctx.fillStyle='#8ca8bc';ctx.fillRect(-7,-78,5,91);ctx.fillStyle='#4aa4c8';ctx.beginPath();ctx.arc(0,-43,8,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#d6f6ff';ctx.lineWidth=2;ctx.stroke();
-ctx.fillStyle='#c64d49';ctx.beginPath();ctx.moveTo(-17,17);ctx.lineTo(-37,48);ctx.lineTo(-16,40);ctx.closePath();ctx.fill();ctx.beginPath();ctx.moveTo(17,17);ctx.lineTo(37,48);ctx.lineTo(16,40);ctx.closePath();ctx.fill();
-ctx.fillStyle='#8c9eaa';ctx.fillRect(-9,32,18,13);ctx.restore()}
-function drawFlame(x,y,s){let f=1+Math.sin(t*24)*.18;let g=ctx.createLinearGradient(0,y,0,y+95*s*f);g.addColorStop(0,'#fffbd1');g.addColorStop(.22,'#ffdb55');g.addColorStop(.62,'#ff742d');g.addColorStop(1,'#f52c19');ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(x-9*s,y);ctx.quadraticCurveTo(x-18*s,y+40*s*f,x,y+95*s*f);ctx.quadraticCurveTo(x+18*s,y+40*s*f,x+9*s,y);ctx.fill()}
-function drawSmoke(x,y,amount){for(let i=0;i<amount;i++){let q=(t*35+i*37)%180,xx=x+Math.sin(i*9+t*2)*q*.35,yy=y+q;let r=8+q*.19;ctx.fillStyle='rgba(190,205,215,'+(0.2*(1-q/190))+')';ctx.beginPath();ctx.arc(xx,yy,r,0,7);ctx.fill()}}
-function frame(){t+=.016;ctx.clearRect(0,0,w,h);let bg=ctx.createLinearGradient(0,0,0,h);bg.addColorStop(0,'#020713');bg.addColorStop(.7,'#10294a');bg.addColorStop(1,'#172d46');ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);
-stars.forEach(s=>{ctx.globalAlpha=s.a*(.65+.35*Math.sin(t*2+s.p));ctx.fillStyle='#e5f7ff';ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,7);ctx.fill()});ctx.globalAlpha=1;
-let elapsed=mode==='flight'?(paused?pausedAt:Math.max(0,(performance.now()-launchAt)/1000)):0;let lift=mode==='flight'?Math.min(elapsed*elapsed*1.1, h*.95):0;let x=w*.5,y=h*.68-lift;
-drawEarth();if(mode==='ready'||mode==='count'||(mode==='flight'&&lift<h*.8)){let s=Math.max(.58,Math.min(1.05,h/700));if(mode==='flight')drawFlame(x,y+42*s,s);if(mode==='flight')drawSmoke(x,y+45*s,28);rocket(x,y,s);}
-// launch glow
-if(mode==='flight'&&elapsed<4){let glow=ctx.createRadialGradient(x,y+65,1,x,y+65,180);glow.addColorStop(0,'#ffb34a66');glow.addColorStop(1,'#ff8a0000');ctx.fillStyle=glow;ctx.fillRect(x-180,y-115,360,360)}
-if(mode==='flight'){let alt=Math.round(Math.min(elapsed*elapsed*1.7,120));let speed=Math.round(Math.min(elapsed*elapsed*920,28000));$('alt').textContent=alt+' km';$('speed').textContent=speed.toLocaleString('en-US')+' km/h';$('time').textContent='00:'+String(Math.floor(elapsed)).padStart(2,'0');if(elapsed>12){$('status').textContent='در مسیر فضا';$('caption').textContent='عبور از جوّ زمین · ادامهٔ سفر به مدار';}else{$('status').textContent='در حال صعود';$('caption').textContent='موشک در حال اوج‌گیری به سوی فضا';}}
-raf=requestAnimationFrame(frame)}
-function start(){if(mode==='flight')return;let n=10;$('launch').disabled=true;mode='count';$('status').textContent='شمارش معکوس';$('caption').textContent='همهٔ سامانه‌ها آماده‌اند';$('count').style.opacity=1;$('count').textContent=n;clearInterval(countTimer);countTimer=setInterval(()=>{n--;$('count').textContent=n>0?n:'پرواز!';if(n<=0){clearInterval(countTimer);$('count').style.opacity=0;mode='flight';launchAt=performance.now();paused=false;$('status').textContent='پرتاب شد';$('launch').disabled=false;$('launch').textContent='🚀 پرتاب انجام شد';}},1000)}
-$('launch').addEventListener('click',start);$('pause').addEventListener('click',()=>{if(mode!=='flight')return;if(!paused){paused=true;pausedAt=(performance.now()-launchAt)/1000;$('pause').textContent='▶ ادامه';$('status').textContent='مکث'}else{paused=false;launchAt=performance.now()-pausedAt*1000;$('pause').textContent='Ⅱ مکث';$('status').textContent='در حال صعود'}});
-$('reset').addEventListener('click',()=>{clearInterval(countTimer);mode='ready';paused=false;launchAt=null;$('count').style.opacity=0;$('launch').disabled=false;$('launch').textContent='🚀 شروع شمارش معکوس';$('pause').textContent='Ⅱ مکث';$('alt').textContent='۰ km';$('speed').textContent='۰ km/h';$('time').textContent='00:00';$('status').textContent='آماده';$('caption').textContent='موشک آمادهٔ پرتاب است'});frame();
+(()=>{
+const shots=[
+{url:'https://images-assets.nasa.gov/image/SLS_MAF_20260401_ArtemisIILaunch_02/SLS_MAF_20260401_ArtemisIILaunch_02~large.jpg',title:'عکس واقعی پرتاب موشک SLS در مأموریت آرتمیس ۲ · اعتبار تصویر: NASA',desc:'لحظهٔ پرتاب موشک Space Launch System ناسا در اول آوریل ۲۰۲۶؛ آغاز سفر سرنشین‌دار آرتمیس ۲ به سوی ماه.'},
+{url:'https://images-assets.nasa.gov/image/art002e000192/art002e000192~large.jpg',title:'زمین از پنجرهٔ فضاپیمای اوراین · عکس خدمهٔ آرتمیس ۲ · NASA',desc:'تصویر واقعی سیارهٔ زمین که یکی از خدمهٔ آرتمیس ۲ در دوم آوریل ۲۰۲۶ از پنجرهٔ فضاپیمای اوراین ثبت کرد.'},
+{url:'https://images-assets.nasa.gov/image/art002e009280b/art002e009280b~large.jpg',title:'طلوع زمین در افق ماه · مأموریت آرتمیس ۲ · NASA',desc:'عکس واقعی زمین در کنار ماه که فضانوردان آرتمیس ۲ در جریان پرواز نزدیک ماه ثبت کردند.'}
+];
+let current=0,interval=null,seconds=0;
+const photo=document.getElementById('photo');
+function show(i){current=(i+shots.length)%shots.length;photo.style.backgroundImage='url("'+shots[current].url+'")';document.getElementById('credit').textContent=shots[current].title;document.getElementById('desc').textContent=shots[current].desc}
+shots.forEach((s,i)=>{const im=new Image();im.src=s.url;document.getElementById('t'+i).style.backgroundImage='url("'+s.url+'")';document.getElementById('t'+i).onclick=()=>show(i)});
+show(0);
+document.getElementById('next').onclick=()=>show(current+1);
+document.getElementById('launch').onclick=()=>{if(interval)return;let n=10;const c=document.getElementById('count');c.style.display='block';c.textContent=n;document.getElementById('status').textContent='شمارش معکوس';interval=setInterval(()=>{n--;c.textContent=n>0?n:'LIFTOFF';if(n<=0){clearInterval(interval);interval=null;c.style.display='none';seconds=0;document.getElementById('status').textContent='در مسیر فضا';show(1);const start=Date.now();const tick=setInterval(()=>{seconds=Math.floor((Date.now()-start)/1000);document.getElementById('timer').textContent='00:'+String(seconds%60).padStart(2,'0');document.getElementById('alt').textContent=Math.min(400,Math.floor(seconds*18))+' km';if(seconds>22){clearInterval(tick);document.getElementById('status').textContent='نمای مدار زمین';show(2)}},1000)}},1000)};
+document.getElementById('reset').onclick=()=>{clearInterval(interval);interval=null;document.getElementById('count').style.display='none';seconds=0;document.getElementById('timer').textContent='00:00';document.getElementById('alt').textContent='۰ km';document.getElementById('status').textContent='آماده';show(0)};
 })();
 </script></body></html>
