@@ -1,47 +1,46 @@
 <!doctype html>
 <html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Erfan Space Mission</title>
+<title>Erfan Space 3D Launch</title>
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#020611;color:#f2f8ff;font-family:Tahoma,Arial,sans-serif;min-height:100vh}
-.hero{height:100vh;min-height:650px;position:relative;overflow:hidden;background:#020611}
-.photo{position:absolute;inset:0;background-size:cover;background-position:center;transition:background-image 1s,transform 12s;transform:scale(1.04)}
-.photo:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#020611aa,#02061125 55%,#020611bb),linear-gradient(0deg,#020611 0%,transparent 65%)}
-header{position:absolute;z-index:2;top:0;left:0;right:0;padding:22px 5%;display:flex;justify-content:space-between;align-items:center}
-.logo{font-size:22px;font-weight:900;letter-spacing:1px}.logo span{color:#63d9ff}.tag{border:1px solid #ffffff44;background:#06142699;padding:10px 15px;border-radius:30px;font-size:12px}
-main{position:absolute;z-index:2;top:22%;right:7%;width:min(570px,86%)}.eyebrow{color:#7ce2ff;letter-spacing:3px;font-size:12px}
-h1{font-size:clamp(34px,6vw,68px);line-height:1.15;margin:16px 0;text-shadow:0 5px 25px #000}.desc{color:#d2e0ef;line-height:2;font-size:14px;max-width:480px}
-.controls{display:flex;gap:10px;flex-wrap:wrap;margin:25px 0}button{cursor:pointer;border:1px solid #8ce8ff88;border-radius:12px;padding:13px 18px;background:#0b2945d9;color:white;font:inherit;font-size:13px}button.primary{background:linear-gradient(120deg,#0784b7,#10b7cb);border:0;font-weight:bold}
-.metrics{display:flex;gap:10px;flex-wrap:wrap}.metric{background:#06182bd9;border:1px solid #b3eaff30;padding:12px 16px;border-radius:12px;min-width:112px}.metric small{display:block;color:#9db7cb;font-size:10px;margin-bottom:6px}.metric b{font-size:18px}
-#count{font-size:clamp(65px,12vw,130px);font-weight:900;color:white;text-shadow:0 0 40px #56dfff;position:absolute;z-index:3;top:38%;left:50%;transform:translate(-50%,-50%);display:none}
-footer{position:absolute;z-index:2;bottom:18px;left:5%;right:5%;display:flex;justify-content:space-between;align-items:end;gap:12px;color:#b4c9db;font-size:10px}
-.gallery{display:flex;gap:8px}.thumb{width:76px;height:48px;border-radius:7px;border:1px solid #ffffff55;background-size:cover;background-position:center;cursor:pointer}
-.caption{max-width:390px;line-height:1.7;text-align:left}
-@media(max-width:650px){.hero{min-height:720px}header{padding:16px}.tag{display:none}main{top:18%;right:6%;width:88%}footer{bottom:12px;display:block}.gallery{margin-top:10px}.caption{text-align:right}}
+*{box-sizing:border-box}body{margin:0;background:#030916;color:#eff8ff;font-family:Tahoma,Arial,sans-serif;overflow:hidden}
+#world{height:100vh;min-height:600px;position:relative;overflow:hidden;background:#07152a}
+#back{position:absolute;inset:0;background-image:linear-gradient(0deg,#020713 0%,#02071344 50%,#02071355),url('https://www.nasa.gov/wp-content/uploads/2026/04/55182696113-0c4398702d-o-2.jpg');background-size:cover;background-position:center 43%;transition:background-image 1s}
+#back.space{background-image:linear-gradient(0deg,#02071355,#02071322),url('https://images-assets.nasa.gov/image/art002e000192/art002e000192~large.jpg')}
+header{position:absolute;z-index:10;top:16px;left:20px;right:20px;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:22px;font-weight:900;text-shadow:0 2px 12px #000}.logo span{color:#65dcff}.tag{font-size:11px;background:#061426c9;border:1px solid #a4eaff44;padding:10px 14px;border-radius:30px}
+#rocket{position:absolute;z-index:4;left:50%;bottom:10%;width:min(36vw,360px);height:min(68vh,620px);transform:translateX(-50%);transition:bottom 13s cubic-bezier(.16,.7,.25,1);filter:drop-shadow(0 15px 22px #0009)}
+#rocket model-viewer{width:100%;height:100%;background:transparent;--poster-color:transparent}
+#rocket.launching{bottom:125%}
+#tower{position:absolute;z-index:3;left:calc(50% + min(13vw,130px));bottom:10%;width:9%;height:54%;border-left:8px solid #778b9a;border-right:8px solid #778b9a;background:repeating-linear-gradient(0deg,transparent 0 30px,#8194a455 31px 34px),linear-gradient(90deg,transparent 45%,#93a8b855 46% 52%,transparent 53%);clip-path:polygon(22% 0,78% 0,100% 100%,0 100%);opacity:.9}
+#pad{position:absolute;z-index:2;bottom:7%;left:50%;transform:translateX(-50%);width:min(55vw,560px);height:28px;background:linear-gradient(#b5c2cc,#4b5967);border-radius:50%;box-shadow:0 15px 45px #000}
+#flame{position:absolute;z-index:3;left:50%;bottom:12%;transform:translateX(-50%);width:90px;height:0;opacity:0;background:linear-gradient(#fff8ba,#ffb52d 25%,#ff5c16 65%,transparent);clip-path:polygon(25% 0,75% 0,100% 100%,50% 75%,0 100%);filter:blur(5px)}
+#flame.on{height:230px;opacity:1;animation:flicker .12s infinite alternate}
+@keyframes flicker{from{transform:translateX(-50%) scaleX(.8)}to{transform:translateX(-50%) scaleX(1.18)}}
+#smoke{position:absolute;z-index:2;bottom:7%;left:50%;width:0;height:0;border-radius:50%;background:radial-gradient(ellipse,#c7d0d6aa,transparent 68%);filter:blur(12px);transition:all 4s}
+#smoke.on{width:65vw;height:30vh;transform:translateX(-50%)}
+.panel{position:absolute;z-index:11;right:18px;bottom:18px;width:min(330px,calc(100% - 36px));padding:15px;background:#061426e8;border:1px solid #8ce6ff44;border-radius:17px;backdrop-filter:blur(12px)}
+h2{margin:0 0 12px;color:#7de4ff;font-size:16px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stat{background:#ffffff0c;padding:9px;border-radius:10px}.stat small{display:block;color:#9cb5ca;font-size:10px;margin-bottom:5px}.stat b{font-size:16px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}button,.download{cursor:pointer;border:1px solid #72dfff66;background:#113653;color:white;border-radius:10px;padding:10px 12px;font:inherit;font-size:11px;text-decoration:none}button.primary{background:linear-gradient(120deg,#087ba5,#10aabd);border:0;font-weight:bold}
+#count{position:absolute;z-index:12;top:25%;left:50%;transform:translateX(-50%);font-size:clamp(55px,10vw,110px);font-weight:900;color:#fff;text-shadow:0 0 35px #6bdfff;display:none}
+.note{font-size:9px;color:#9bb2c7;line-height:1.6;margin:10px 0 0}
+#caption{position:absolute;z-index:9;top:17%;left:50%;transform:translateX(-50%);font-size:13px;color:#fff;text-shadow:0 2px 8px #000;white-space:nowrap}
+@media(max-width:650px){header{top:10px;left:12px;right:12px}.tag{display:none}#rocket{width:60vw;height:58vh;bottom:13%}#rocket.launching{bottom:125%}#tower{left:calc(50% + 21vw);height:42%}.panel{bottom:9px;right:9px}.note{display:none}#caption{top:14%;font-size:11px}}
 </style></head><body>
-<section class="hero"><div class="photo" id="photo"></div>
-<header><div class="logo">ERFAN <span>SPACE</span></div><div class="tag">REAL NASA PHOTOGRAPHY · SPACE MISSION SIMULATOR</div></header>
-<div id="count">10</div>
-<main><div class="eyebrow">MISSION CONTROL / ARTEMIS-INSPIRED</div><h1>سفر به<br>فضای بی‌کران</h1>
-<p class="desc" id="desc">تجربهٔ تصویری پرتاب یک موشک فضایی با عکس‌های واقعی ناسا. شمارش معکوس را آغاز کن و مراحل مأموریت را قدم‌به‌قدم ببین.</p>
-<div class="controls"><button class="primary" id="launch">🚀 آغاز شمارش معکوس</button><button id="next">نمای بعدی ←</button><button id="reset">بازنشانی</button></div>
-<div class="metrics"><div class="metric"><small>زمان مأموریت</small><b id="timer">00:00</b></div><div class="metric"><small>ارتفاع نمایشی</small><b id="alt">۰ km</b></div><div class="metric"><small>وضعیت</small><b id="status">آماده</b></div></div></main>
-<footer><div class="caption" id="credit">عکس واقعی پرتاب موشک SLS در مأموریت آرتمیس ۲ · اعتبار تصویر: NASA</div>
-<div class="gallery"><div class="thumb" id="t0" title="پرتاب ناسا"></div><div class="thumb" id="t1" title="زمین از فضا"></div><div class="thumb" id="t2" title="زمین و ماه"></div></div></footer>
-</section>
+<section id="world"><div id="back"></div><header><div class="logo">ERFAN <span>SPACE 3D</span></div><div class="tag">NASA SATURN V · 3D LAUNCH SIMULATOR</div></header>
+<div id="caption">نمای سه‌بعدی موشک واقعی Saturn V از مجموعه ناسا</div><div id="count">10</div>
+<div id="tower"></div><div id="pad"></div><div id="smoke"></div><div id="flame"></div>
+<div id="rocket"><model-viewer id="model" src="https://assets.science.nasa.gov/content/dam/science/cds/3d/resources/model/saturn-v/Saturn%20V.glb" alt="مدل سه بعدی موشک Saturn V ناسا" camera-controls auto-rotate rotation-per-second="12deg" shadow-intensity="1" exposure="1.05" environment-image="neutral" interaction-prompt="auto" camera-orbit="0deg 75deg 4m"></model-viewer></div>
+<section class="panel"><h2>کنترل پرتاب سه‌بعدی</h2><div class="stats">
+<div class="stat"><small>ارتفاع نمایشی</small><b id="alt">۰ km</b></div><div class="stat"><small>سرعت نمایشی</small><b id="speed">۰ km/h</b></div>
+<div class="stat"><small>زمان مأموریت</small><b id="timer">00:00</b></div><div class="stat"><small>وضعیت</small><b id="status">آماده</b></div></div>
+<div class="actions"><button class="primary" id="launch">🚀 شروع پرتاب</button><button id="pause">Ⅱ مکث</button><button id="reset">↻ بازنشانی</button><a class="download" href="https://assets.science.nasa.gov/content/dam/science/cds/3d/resources/model/saturn-v/Saturn%20V.glb" download>دانلود مدل GLB</a></div>
+<p class="note">مدل سه‌بعدی رسمی ناسا: Saturn V · عکس پس‌زمینه از پرتاب Artemis II. برای بارگذاری مدل و تصاویر اینترنت لازم است. اعداد ارتفاع و سرعت نمایشی‌اند و دادهٔ واقعی پرواز نیستند.</p></section></section>
 <script>
-(()=>{
-const shots=[
-{url:'https://images-assets.nasa.gov/image/SLS_MAF_20260401_ArtemisIILaunch_02/SLS_MAF_20260401_ArtemisIILaunch_02~large.jpg',title:'عکس واقعی پرتاب موشک SLS در مأموریت آرتمیس ۲ · اعتبار تصویر: NASA',desc:'لحظهٔ پرتاب موشک Space Launch System ناسا در اول آوریل ۲۰۲۶؛ آغاز سفر سرنشین‌دار آرتمیس ۲ به سوی ماه.'},
-{url:'https://images-assets.nasa.gov/image/art002e000192/art002e000192~large.jpg',title:'زمین از پنجرهٔ فضاپیمای اوراین · عکس خدمهٔ آرتمیس ۲ · NASA',desc:'تصویر واقعی سیارهٔ زمین که یکی از خدمهٔ آرتمیس ۲ در دوم آوریل ۲۰۲۶ از پنجرهٔ فضاپیمای اوراین ثبت کرد.'},
-{url:'https://images-assets.nasa.gov/image/art002e009280b/art002e009280b~large.jpg',title:'طلوع زمین در افق ماه · مأموریت آرتمیس ۲ · NASA',desc:'عکس واقعی زمین در کنار ماه که فضانوردان آرتمیس ۲ در جریان پرواز نزدیک ماه ثبت کردند.'}
-];
-let current=0,interval=null,seconds=0;
-const photo=document.getElementById('photo');
-function show(i){current=(i+shots.length)%shots.length;photo.style.backgroundImage='url("'+shots[current].url+'")';document.getElementById('credit').textContent=shots[current].title;document.getElementById('desc').textContent=shots[current].desc}
-shots.forEach((s,i)=>{const im=new Image();im.src=s.url;document.getElementById('t'+i).style.backgroundImage='url("'+s.url+'")';document.getElementById('t'+i).onclick=()=>show(i)});
-show(0);
-document.getElementById('next').onclick=()=>show(current+1);
-document.getElementById('launch').onclick=()=>{if(interval)return;let n=10;const c=document.getElementById('count');c.style.display='block';c.textContent=n;document.getElementById('status').textContent='شمارش معکوس';interval=setInterval(()=>{n--;c.textContent=n>0?n:'LIFTOFF';if(n<=0){clearInterval(interval);interval=null;c.style.display='none';seconds=0;document.getElementById('status').textContent='در مسیر فضا';show(1);const start=Date.now();const tick=setInterval(()=>{seconds=Math.floor((Date.now()-start)/1000);document.getElementById('timer').textContent='00:'+String(seconds%60).padStart(2,'0');document.getElementById('alt').textContent=Math.min(400,Math.floor(seconds*18))+' km';if(seconds>22){clearInterval(tick);document.getElementById('status').textContent='نمای مدار زمین';show(2)}},1000)}},1000)};
-document.getElementById('reset').onclick=()=>{clearInterval(interval);interval=null;document.getElementById('count').style.display='none';seconds=0;document.getElementById('timer').textContent='00:00';document.getElementById('alt').textContent='۰ km';document.getElementById('status').textContent='آماده';show(0)};
+(()=>{const $=id=>document.getElementById(id);let count=null,tick=null,elapsed=0,startAt=0,paused=false,flight=false;
+$('launch').onclick=()=>{if(flight||count)return;let n=10;$('status').textContent='شمارش معکوس';$('count').style.display='block';$('count').textContent=n;count=setInterval(()=>{n--;$('count').textContent=n>0?n:'LIFTOFF';if(n<=0){clearInterval(count);count=null;$('count').style.display='none';flight=true;elapsed=0;startAt=Date.now();$('status').textContent='در حال پرواز';$('caption').textContent='پرتاب! موشک در حال ترک سکوی زمینی است';$('rocket').classList.add('launching');$('flame').classList.add('on');$('smoke').classList.add('on');$('back').classList.add('space');tick=setInterval(update,250)}},1000)};
+function update(){if(paused)return;elapsed=(Date.now()-startAt)/1000;$('timer').textContent='00:'+String(Math.floor(elapsed)).padStart(2,'0');$('alt').textContent=Math.min(160,Math.floor(elapsed*8))+' km';$('speed').textContent=Math.min(28000,Math.floor(elapsed*850)).toLocaleString('en-US')+' km/h';if(elapsed>12){$('status').textContent='در مسیر فضا';$('caption').textContent='موشک از جوّ عبور می‌کند · نمای زمین از فضا'}if(elapsed>24){clearInterval(tick);tick=null;$('status').textContent='در مدار نمایشی';$('caption').textContent='پایان انیمیشن پرتاب · نمای زمین از فضا'}}
+$('pause').onclick=()=>{if(!flight)return;paused=!paused;$('pause').textContent=paused?'▶ ادامه':'Ⅱ مکث';$('status').textContent=paused?'مکث':'در حال پرواز';if(!paused)startAt=Date.now()-elapsed*1000};
+$('reset').onclick=()=>{clearInterval(count);clearInterval(tick);count=tick=null;flight=false;paused=false;elapsed=0;$('rocket').classList.remove('launching');$('flame').classList.remove('on');$('smoke').classList.remove('on');$('back').classList.remove('space');$('count').style.display='none';$('timer').textContent='00:00';$('alt').textContent='۰ km';$('speed').textContent='۰ km/h';$('status').textContent='آماده';$('caption').textContent='نمای سه‌بعدی موشک واقعی Saturn V از مجموعه ناسا';$('pause').textContent='Ⅱ مکث'};
 })();
 </script></body></html>
