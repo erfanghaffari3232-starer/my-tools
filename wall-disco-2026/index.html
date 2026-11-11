@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>رقص نور دیواری</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#03020b;color:white;font-family:Tahoma,Arial}
+#room{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 110%,#25213b,#090817 48%,#020208);isolation:isolate}
+#wall{position:absolute;inset:5% 4% 12%;overflow:hidden;border:1px solid #ffffff22;border-radius:8px;background:linear-gradient(145deg,#111329,#080916 60%,#171026);box-shadow:inset 0 0 80px #000b,0 25px 90px #000}
+.beam{position:absolute;width:85vw;height:85vw;max-width:1100px;max-height:1100px;left:50%;top:48%;transform-origin:50% 0;border-radius:50%;mix-blend-mode:screen;filter:blur(9px);opacity:.66;background:conic-gradient(from 0deg,transparent 0 20%,var(--c) 24%,transparent 29% 48%,var(--c2) 53%,transparent 59% 78%,var(--c) 84%,transparent 90%);animation:spin var(--speed,7s) linear infinite}
+.b2{width:100vw;height:100vw;opacity:.42;animation-direction:reverse;animation-duration:calc(var(--speed,7s)*1.37)}.b3{width:72vw;height:72vw;opacity:.5;animation-duration:calc(var(--speed,7s)*.72)}
+@keyframes spin{to{transform:translate(-50%,-5%) rotate(360deg) scaleX(.8)}}
+.wash{position:absolute;inset:-20%;background:radial-gradient(ellipse at 20% 25%,#ff00aa55,transparent 35%),radial-gradient(ellipse at 80% 25%,#00d9ff55,transparent 35%),radial-gradient(ellipse at 50% 80%,#8a00ff55,transparent 40%);mix-blend-mode:screen;animation:wash 9s ease-in-out infinite alternate}
+@keyframes wash{to{filter:hue-rotate(150deg);transform:scale(1.18)}}
+.laser{position:absolute;height:2px;width:140%;left:-20%;top:var(--y);background:linear-gradient(90deg,transparent,var(--c),#fff,var(--c2),transparent);box-shadow:0 0 14px 4px var(--c);opacity:.8;transform:rotate(var(--r));animation:laser 3.2s ease-in-out infinite alternate}
+@keyframes laser{from{translate:-8% 0;opacity:.25}to{translate:8% 0;opacity:.95}}
+.dots{position:absolute;inset:0;opacity:.4;background-image:radial-gradient(#fff 1px,transparent 1.5px);background-size:53px 47px;animation:drift 14s linear infinite}@keyframes drift{to{background-position:106px 94px}}
+#floor{position:absolute;bottom:0;left:0;right:0;height:15%;background:linear-gradient(#080713,#020207);box-shadow:0 -15px 55px #000}
+#controls{position:fixed;z-index:5;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center;padding:10px 14px;background:#080817e8;border:1px solid #ffffff2b;border-radius:18px;backdrop-filter:blur(12px);max-width:95vw}
+button,select{border:1px solid #ffffff44;border-radius:12px;padding:10px 14px;background:#17172c;color:white;font:inherit;cursor:pointer}button:hover,select:hover{background:#303052}label{font-size:12px;color:#ddd;display:flex;align-items:center;gap:7px}input{width:85px;accent-color:#d946ef}
+#hint{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:5;color:#ffffffb8;font-size:12px;text-shadow:0 2px 8px #000;white-space:nowrap}
+.paused *{animation-play-state:paused!important}.hidden-ui #controls,.hidden-ui #hint{opacity:0;transition:opacity .4s}.hidden-ui:hover #controls,.hidden-ui:hover #hint{opacity:1}
+@media(max-width:600px){#wall{inset:3% 2% 18%}#controls{bottom:8px;gap:6px;padding:8px}button,select{padding:8px;font-size:12px}label{font-size:10px}}
+</style></head>
+<body><div id="room"><div id="wall"><div class="wash"></div>
+<div class="beam" style="--c:#ff00b7;--c2:#00eaff"></div><div class="beam b2" style="--c:#a000ff;--c2:#ff4d00"></div><div class="beam b3" style="--c:#00ffb3;--c2:#ffe600"></div>
+<div class="laser" style="--y:24%;--r:13deg;--c:#00eaff;--c2:#ff00c8"></div><div class="laser" style="--y:58%;--r:-17deg;--c:#ffe600;--c2:#9d00ff;animation-delay:-1.4s"></div><div class="dots"></div></div><div id="floor"></div></div>
+<div id="hint">رقص‌نور رنگی روی دیوار • برای نمایش بزرگ، تمام‌صفحه را بزن</div>
+<div id="controls"><button id="pause">⏸ توقف</button><button id="full">⛶ تمام‌صفحه</button><button id="hide">✦ مخفی‌کردن کنترل‌ها</button>
+<label>سرعت <input id="speed" type="range" min="2" max="16" value="7"></label><label>روشنایی <input id="bright" type="range" min="20" max="100" value="75"></label>
+<select id="mode"><option value="party">مهمانی رنگی</option><option value="neon">نئون</option><option value="ocean">اقیانوسی</option><option value="sunset">غروب</option></select></div>
+<script>
+const root=document.documentElement,room=document.getElementById('room');let paused=false;
+document.getElementById('pause').onclick=()=>{paused=!paused;room.classList.toggle('paused',paused);document.getElementById('pause').textContent=paused?'▶ ادامه':'⏸ توقف'};
+document.getElementById('full').onclick=async()=>{try{if(!document.fullscreenElement)await document.documentElement.requestFullscreen();else await document.exitFullscreen()}catch(e){}};
+document.getElementById('hide').onclick=()=>room.classList.toggle('hidden-ui');
+document.getElementById('speed').oninput=e=>root.style.setProperty('--speed',(18-e.target.value)+'s');
+document.getElementById('bright').oninput=e=>document.getElementById('wall').style.filter='brightness('+(e.target.value/75)+')';
+const palettes={party:['#ff00b7','#00eaff','#a000ff','#ffe600'],neon:['#00ff88','#00d9ff','#ff00aa','#b8ff00'],ocean:['#00aaff','#00ffe1','#315bff','#b5f7ff'],sunset:['#ff3d00','#ffb000','#ff00a8','#8a2be2']};
+document.getElementById('mode').onchange=e=>{const p=palettes[e.target.value];document.querySelectorAll('.beam').forEach((b,i)=>{b.style.setProperty('--c',p[i]);b.style.setProperty('--c2',p[(i+1)%4])});document.querySelectorAll('.laser').forEach((l,i)=>{l.style.setProperty('--c',p[(i+2)%4]);l.style.setProperty('--c2',p[(i+3)%4])})};
+</script></body></html>
